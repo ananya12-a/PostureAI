@@ -1,0 +1,8 @@
+@load !knees @if @lt @absDiff &kp[0][10][0] &kp[0][11][0] @absDiff &kp[0][13][0] &kp[0][14][0] !10i !13i
+@load !ankles @if @lt @absDiff &kp[0][10][0] &kp[0][11][0] @absDiff &kp[0][13][0] &kp[0][14][0] !11i !14i
+@load !heels @if @lt @absDiff &kp[0][10][0] &kp[0][11][0] @absDiff &kp[0][13][0] &kp[0][14][0] !24i !21i
+@load !toes @if @lt @absDiff &kp[0][10][0] &kp[0][11][0] @absDiff &kp[0][13][0] &kp[0][14][0] !22i !19i
+
+
+@puts !feedbacks @if @lte @diff &kp[0][&toe][0] &kp[0][&knee][0] @dist &kp[0][&ankle][0] &kp[0][&heel][0] &kp[0][&ankle][1] &kp[0][&heel][1] !Goods !"Your knee are going over your toes" 
+@puts !Outputs @ltScore @diff &kp[0][&toe][0] &kp[0][&knee][0] @dist &kp[0][&ankle][0] &kp[0][&heel][0] &kp[0][&ankle][1] &kp[0][&heel][1]

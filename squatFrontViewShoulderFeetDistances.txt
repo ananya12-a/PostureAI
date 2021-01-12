@@ -1,0 +1,17 @@
+@load !limits !2.5f
+
+@load !shoulderx1s &kp[0][2][0]
+@load !shoulderx2s &kp[0][5][0]
+@load !shouldery1s &kp[0][2][1]
+@load !shouldery2s &kp[0][5][1]
+@load !shoulderDists @dist &shoulderx1 &shoulderx2 &shouldery1 &shouldery2
+
+@load !kneex1s &kp[0][11][0]
+@load !kneex2s &kp[0][14][0]
+@load !kneey1s &kp[0][11][1]
+@load !kneey2s &kp[0][14][1]
+@load !kneeDists @dist &kneex1 &kneex2 &kneey1 &kneey2
+@load !factors @divide @dist &kp[0][1][0] &kp[0][8][0] &kp[0][1][1] &kp[0][8][1] @absDiff &shoulderDist &kneeDist
+
+@puts !names @if @gt &factor &limit !Goods !Bads
+@puts !improvements @if @lt @absDiff &shoulderDist &kneeDist &limit !"" @if @gt &shoulderDist &kneeDist !"Increase The Distance Between Your Feet" !"Decrease The Distance Between Your Feet"
