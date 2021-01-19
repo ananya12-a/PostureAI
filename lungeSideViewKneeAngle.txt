@@ -1,0 +1,12 @@
+@load !upperLimits !95i
+@load !lowerLimits !85i
+@load !idealAngles @avg &lowerLimit &upperLimit
+@load !ranges @divide @absDiff &upperLimit &lowerLimit !2i
+
+@load !rightAngles @rad @angle3 &kp[0][9][0] &kp[0][10][0] &kp[0][11][0] &kp[0][9][1] &kp[0][10][1] &kp[0][11][1]
+@load !leftAngles @rad @angle3 &kp[0][12][0] &kp[0][13][0] &kp[0][14][0] &kp[0][12][1] &kp[0][13][1] &kp[0][14][1]
+
+@puts !rightOutputs @angleScore &rightAngle &idealAngle &range
+@puts !leftOutputs @angleScore &leftAngle &idealAngle &range
+@puts !rightFeedbacks @if @and @gte &rightAngle &lowerLimit  @lte &rightAngle &upperLimit !Goods @if @gt &rightAngle &upperLimit !" forming an angle greater than 90" !"forming an angle lesser than 90"
+@puts !leftFeedbacks @if @and @gte &leftAngle &lowerLimit  @lte &leftAngle &upperLimit !Goods @if @gt &leftAngle &upperLimit !" forming an angle greater than 90" !"forming an angle lesser than 90"

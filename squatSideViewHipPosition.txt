@@ -1,0 +1,14 @@
+@load !upperLimits !65i
+@load !lowerLimits !55i
+
+@load !angles @ath &kp[0][1][0] &kp[0][8][0] &kp[0][1][1] &kp[0][8][1]
+@load !idealAngles @avg &upperLimit &lowerLimit
+@load !ranges @divide @absDiff &upperLimit &lowerLimit !2i
+
+@puts !backOutputs @angleScore &angle &idealAngle &range
+@puts !backFeedbacks @if @and @gte &angle &lowerLimit @lte &angle &upperLimit !Goods @if @gt &angle &upperLimit !" Your back is too upright" !"Your back is too close to your knees"
+
+@load !hipOutput1s @gtScore &kp[0][8][0] &kp[0][21][0]
+@load !hipOutput2s @gtScore &kp[0][8][0] &kp[0][24][0]
+@puts !hipOutputs @if @lt &hipOutput1 &hipOutput2 &hipOutput1 &hipOutput2
+@puts !hipFeedbacks @if @or @gte &kp[0][8][0] &kp[0][21][0] @gte &kp[0][8][0] &kp[0][24][0] !Goods !" Move your hip outwards"
