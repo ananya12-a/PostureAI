@@ -1,6 +1,11 @@
 from flask import Flask, flash, request, redirect, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 import os
+import Functions
+import redis_main
+import cv2
+import json
+import time
 
 UPLOAD_FOLDER = '/video_uploads'
 ALLOWED_EXTENSIONS = {'mp4', 'mov'}
@@ -12,10 +17,19 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/', methods=['GET', 'POST','PUT','DELETE'])
+def analyse(filepath, exercise, orientation):
+    cap = cv2.VideoCapture(filepath)
+    keypoints = analyse_video(filepath)
+    fps = cap.get(cv2.CAP_PROP_FPS)      
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    duration = frame_count/fps
+    with open('data/' + flask_login.current_user + '/' + time.time() +'/keypoints.txt', 'w') as outfile:
+        json.dump(keypoints, outfile)
+    create_submissionTable_entry(exercise, flask_login.current_user, getUserId(flask_login.current_user), orientation = "front", seconds_analysed = duration, keypoints = 'data/' + flask_login.current_user + '/' + time.time() +'/keypoints.txt')
+
+@app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        print(flask_login.current_user)
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
@@ -41,7 +55,7 @@ def upload_file():
     </form>
     '''
 
-@app.route('/uploads/<filename>')
+@app.route('/video_uploads/<flask_login.current_user>/../<filename>', methods=['GET', 'POST'])
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
 

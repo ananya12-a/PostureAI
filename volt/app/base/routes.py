@@ -17,6 +17,7 @@ from app.base import blueprint
 from app.base.forms import LoginForm, CreateAccountForm
 
 from data_processing import verify_pass, verify_username
+import os
 
 
 class User(UserMixin):
@@ -102,6 +103,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
+        os.mkdir(os.path.join("data",request.form['username']))
         return render_template( 'accounts/register.html', 
                                 msg='User created please <a href="/login">login</a>', 
                                 success=True,
