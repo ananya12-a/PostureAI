@@ -37,6 +37,9 @@ __global_function_params = {
     "ltScore":2,
     "not":1,
     "angle3": 6,
+    "concat":3,
+    "sum":2,
+    "concat2":2,
 }
 __tokens = {
     "@": "function",
@@ -51,7 +54,7 @@ def __internal_print(val, state):
 def diff(val1, val2, state):
     return val1 - val2
 
-def sum(val1, val2, state):
+def _sum(val1, val2, state):
     return val1 + val2
 
 def square(val, state):
@@ -117,16 +120,26 @@ def distScoreCalc(dist, refDist, state):
     return round((refDist-dist)/refDist * 100,0)
 def gtScoreCalc(val1, val2, state):
     if val2>val1:
-        return round((val2 - abs(val1-val2))/val2 * 100,0)
+        if (val2-val1)<val2:
+            return round((val2 - abs(val1-val2))/val2 * 100,0)
+        else:
+            return round((val2-val1)/(val1+val2) * 100,0)
     else:
         return 100.0
 def ltScoreCalc(val1, val2, state):
     if val2<val1:
-        return round((val2 - abs(val1-val2))/val2 * 100,0)
+        if (val1-val2)<val2:
+            return round((val2 - abs(val1-val2))/val2 * 100,0)
+        else:
+            return round((val1-val2)/(val1+val2) * 100,0)
     else:
-        return 100.0
+        return 100.0 #val1<val2
 def _not(val, state):
     return not val
+def concatenate(val1,val2,val3,state):
+    return str(val1) + " " + str(val2) + " " + str(val3)
+def concatenate2(val1,val2,state):
+    return str(val1) + " " + str(val2)
 
 def angleBetweenThreePoints(x1,x2,x3,y1,y2,y3,state):
     #finds angle at middle point
@@ -155,7 +168,7 @@ __functions_register = {
     "absDiff":absDiff,
     "root":root,
     "sq":square,
-    "sum":sum,
+    "sum":_sum,
     "diff":diff,
     "if":_if,
     "and":_and,
@@ -170,6 +183,8 @@ __functions_register = {
     "ltScore":ltScoreCalc,
     "not":_not,
     "angle3":angleBetweenThreePoints,
+    "concat":concatenate,
+    "concat2":concatenate2,
 }
 cursor = 0
 

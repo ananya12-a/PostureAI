@@ -1,0 +1,569 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <main class="content">
+
+        {% include 'includes/navigation.html' %}
+        
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+            <div class="btn-toolbar dropdown">
+                <button class="btn btn-primary btn-sm mr-2 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="fas fa-plus mr-2"></span>New Task
+                </button>
+                <div class="dropdown-menu dashboard-dropdown dropdown-menu-left mt-2">
+                    <a class="dropdown-item font-weight-bold" href="#"><span class="fas fa-dumbbell"></span>New exercise</a>
+                    <a class="dropdown-item font-weight-bold" href="#"><span class="fas fa-cloud-upload-alt"></span>Upload Files</a>
+                    <a class="dropdown-item font-weight-bold" href="#"><span class="fas fa-user-shield"></span>Preview Security</a>
+                    <div role="separator" class="dropdown-divider"></div>
+                </div>
+            </div>
+            <!--<div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-primary">Share</button>
+                <button type="button" class="btn btn-sm btn-outline-primary">Export</button>
+            </div>-->
+        </div>
+        <div class="row justify-content-md-center">
+            <div class="col-12 col-sm-6 col-xl-3 mb-3">
+                <div class="card border-light shadow-sm">
+                    <div class="card-body">
+                        <div class="row d-block d-xl-flex align-items-center">
+                            <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                                <div class="icon icon-shape icon-md icon-shape-danger rounded mr-4 mr-sm-0"><span class="fas fa-dumbbell"></span></div>
+                                <div class="d-sm-none">
+                                    <h2 class="h5">Monthly Hours Exercised</h2>
+                                    <h3 class="mb-1">30,879</h3>
+                                </div>
+                            </div>
+                            <div class="col-12 col-xl-7 px-xl-0">
+                                <div class="d-none d-sm-block">
+                                    <h2 class="h5">Monthly Hours Exercised</h2>
+                                    <h3 class="mb-1">30,879</h3>
+                                </div>
+                                <small>{{date}} - {{next_month}}</small> 
+                                <div class="small mt-2">                               
+                                    <span class="fas fa-angle-up text-success"></span>                                   
+                                    <span class="text-success font-weight-bold">18.2%</span> Since last month
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3 mb-3">
+                <div class="card border-light shadow-sm">
+                    <div class="card-body">
+                        <div class="row d-block d-xl-flex align-items-center">
+                            <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                                <div class="icon icon-shape icon-md icon-shape-secondary rounded mr-4 mr-sm-0"><span class="fas fa-chart-pie"></span></div>
+                                <div class="d-sm-none">
+                                    <h2 class="h5">Average Score</h2>
+                                    <h3 class="mb-1">76.3</h3>
+                                </div>
+                            </div>
+                            <div class="col-12 col-xl-7 px-xl-0">
+                                <div class="d-none d-sm-block">
+                                    <h2 class="h5">Average Score</h2>
+                                    <h3 class="mb-1">76.3</h3>
+                                </div>
+                                <small>{{date}} - {{next_month}}</small> 
+                                <div class="small mt-2">                               
+                                    <span class="fas fa-angle-up text-success"></span>                                   
+                                    <span class="text-success font-weight-bold">28.2%</span> Since last month
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3 mb-3">
+                <div class="card border-light shadow-sm">
+                    <div class="card-body">
+                        <div class="row d-block d-xl-flex align-items-center">
+                            <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                                <div class="icon icon-shape icon-md icon-shape-tertiary rounded mr-4 mr-sm-0"><span class="fas fa-running"></span></div>
+                                <div class="d-sm-none">
+                                    <h2 class="h5">Streaks</h2>
+                                    <h3 class="mb-1">{{current_user.streaks}}</h3>
+                                </div>
+                            </div>
+                            <div class="col-12 col-xl-7 px-xl-0">
+                                <div class="d-none d-sm-block">
+                                    <h2 class="h5">Streaks</h2>
+                                    <h3 class="mb-1">{{ current_user.streaks }}</h3>
+                                </div>
+                                <small>{{date}} - {{next_month}}</small> 
+                                <div class="small mt-2">                               
+                                    <span class="fas fa-angle-up text-success"></span>                                   
+                                    <span class="text-success font-weight-bold">28.2%</span> Since last month
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3 mb-3">
+                <div class="card border-light shadow-sm">
+                    <div class="card-body">
+                        <div class="row d-block d-xl-flex align-items-center">
+                            <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                                <div class="icon icon-shape icon-md icon-shape-info rounded mr-4 mr-sm-0"><span class="fas fa-trophy"></span></div>
+                                <div class="d-sm-none">
+                                    <h2 class="h5">Leaderboard Rank</h2>
+                                    <h3 class="mb-1">2</h3>
+                                </div>
+                            </div>
+                            <div class="col-12 col-xl-7 px-xl-0">
+                                <div class="d-none d-sm-block">
+                                    <h2 class="h5">Leaderboard Rank</h2>
+                                    <h3 class="mb-1">2</h3>
+                                </div>
+                                <small>{{date}} - {{next_month}}</small> 
+                                <div class="small mt-2">                               
+                                    <span class="fas fa-angle-up text-success"></span>                                   
+                                    <span class="text-success font-weight-bold">28</span> Since last month
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-sm-6 col-xl-8 mb-3">
+                <div class="card bg-yellow-alt shadow-sm">
+                    <div class="card-header d-flex flex-row align-items-center flex-0">
+                        <div class="d-block">
+                            <div class="h5 font-weight-normal mb-2">Overview</div>
+                            <h2 class="h3">Scores</h2>
+                            <div class="small mt-2"> 
+                                <span class="font-weight-bold mr-2">Yesterday</span>                              
+                                <span class="fas fa-angle-up text-success"></span>                                   
+                                <span class="text-success font-weight-bold">10.57%</span>
+                            </div>
+                        </div>
+                        <div class="d-flex ml-auto">
+                            {%for i in range(0, exercise_len)%}
+                                <a href="#" class="btn btn-secondary text-dark btn-sm mr-2">{{exercises[i]}}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="ct-chart-sales-value ct-double-octave ct-series-g"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-4 mb-3">
+                <div class="card border-light shadow-sm">
+                    <div class="card-body d-flex flex-row align-items-center flex-0 border-bottom">
+                        <div class="d-block">
+                            <div class="h6 font-weight-normal text-gray mb-2">Frequency</div>
+                            <h2 class="h3">Hours Analysed</h2>
+                        </div>
+                        <div class="d-block ml-auto">
+                            {%for i in range(0, exercise_len)%}
+                                <div class="d-flex align-items-center text-right mb-2">
+                                    <span class="shape-xs rounded-circle mr-2 bg-{{colours[i]}}"></span>
+                                    <span class="font-weight-normal small">{{exercises[i]}}</span>
+                                </div>
+                            {%endfor%}
+                        </div>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="ct-chart-ranking ct-golden-section ct-series-a"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-xl-12 mb-4">
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <div class="card border-light shadow-sm">
+                            <div class="card-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                    <h2 class="h5">Previous Workouts</h2>
+                                    </div>
+                                    <div class="col text-right">
+                                        <a href="#" class="btn btn-sm btn-secondary">See all</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-items-center table-flush">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th scope="col">Exercise</th>
+                                        <th scope="col">Average Score</th>
+                                        <th scope="col">Highest Score</th>
+                                        <th scope="col">Duration</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <th scope="row">
+                                            squat
+                                        </th>
+                                        <td>
+                                            70
+                                        </td>
+                                        <td>
+                                            90
+                                        </td>
+                                        <td>
+                                            60
+                                        </td>
+                                        <td>
+                                                <!-- Button Modal -->
+                                                <button type="button" class="btn btn-block btn-gray mb-3" data-toggle="modal" data-target="#modal-video">See Video</button>
+                                                <!-- Modal Content -->
+                                                <div class="modal fade" id="modal-video" tabindex="-1" role="dialog" aria-labelledby="modal-video" aria-hidden="true">
+                                                    <div class="modal-dialog modal-light modal-dialog-centered" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header mx-auto">
+                                                                <p class="lead mb-0 text-primary">Video Preview</p>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <video width="100%" height="auto" controls>
+                                                                    <source src="/static/assets/img/videos/result.mp4" type="video/mp4">
+                                                                      Your browser does not support the video tag.
+                                                                </video>
+                                                            </div>
+                                                            <div class="modal-footer d-flex justify-content-center">
+                                                                <button type="button" class="btn btn-sm btn-white text-tertiary" data-dismiss="modal">Awesome!</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- End of Modal Content -->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">
+                                            squat
+                                        </th>
+                                        <td>
+                                            70
+                                        </td>
+                                        <td>
+                                            90
+                                        </td>
+                                        <td>
+                                            60
+                                        </td>
+                                        <td>
+                                                <!-- Button Modal -->
+                                                <button type="button" class="btn btn-block btn-gray mb-3" data-toggle="modal" data-target="#modal-video">See Video</button>
+                                                <!-- Modal Content -->
+                                                <div class="modal fade" id="modal-video" tabindex="-1" role="dialog" aria-labelledby="modal-video" aria-hidden="true">
+                                                    <div class="modal-dialog modal-light modal-dialog-centered" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header mx-auto">
+                                                                <p class="lead mb-0 text-primary">Video Preview</p>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <video width="100%" height="auto" controls>
+                                                                    <source src="/static/assets/img/videos/result.mp4" type="video/mp4">
+                                                                      Your browser does not support the video tag.
+                                                                </video>
+                                                            </div>
+                                                            <div class="modal-footer d-flex justify-content-center">
+                                                                <button type="button" class="btn btn-sm btn-white text-tertiary" data-dismiss="modal">Awesome!</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- End of Modal Content -->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">
+                                            squat
+                                        </th>
+                                        <td>
+                                            70
+                                        </td>
+                                        <td>
+                                            90
+                                        </td>
+                                        <td>
+                                            60
+                                        </td>
+                                        <td>
+                                                <!-- Button Modal -->
+                                                <button type="button" class="btn btn-block btn-gray mb-3" data-toggle="modal" data-target="#modal-video">See Video</button>
+                                                <!-- Modal Content -->
+                                                <div class="modal fade" id="modal-video" tabindex="-1" role="dialog" aria-labelledby="modal-video" aria-hidden="true">
+                                                    <div class="modal-dialog modal-light modal-dialog-centered" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header mx-auto">
+                                                                <p class="lead mb-0 text-primary">Video Preview</p>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <video width="100%" height="auto" controls>
+                                                                    <source src="/static/assets/img/videos/result.mp4" type="video/mp4">
+                                                                      Your browser does not support the video tag.
+                                                                </video>
+                                                            </div>
+                                                            <div class="modal-footer d-flex justify-content-center">
+                                                                <button type="button" class="btn btn-sm btn-white text-tertiary" data-dismiss="modal">Awesome!</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- End of Modal Content -->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">
+                                            squat
+                                        </th>
+                                        <td>
+                                            70
+                                        </td>
+                                        <td>
+                                            90
+                                        </td>
+                                        <td>
+                                            60
+                                        </td>
+                                        <td>
+                                                <!-- Button Modal -->
+                                                <button type="button" class="btn btn-block btn-gray mb-3" data-toggle="modal" data-target="#modal-video">See Video</button>
+                                                <!-- Modal Content -->
+                                                <div class="modal fade" id="modal-video" tabindex="-1" role="dialog" aria-labelledby="modal-video" aria-hidden="true">
+                                                    <div class="modal-dialog modal-light modal-dialog-centered" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header mx-auto">
+                                                                <p class="lead mb-0 text-primary">Video Preview</p>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <video width="100%" height="auto" controls>
+                                                                    <source src="/static/assets/img/videos/result.mp4" type="video/mp4">
+                                                                      Your browser does not support the video tag.
+                                                                </video>
+                                                            </div>
+                                                            <div class="modal-footer d-flex justify-content-center">
+                                                                <button type="button" class="btn btn-sm btn-white text-tertiary" data-dismiss="modal">Awesome!</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- End of Modal Content -->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">
+                                            squat
+                                        </th>
+                                        <td>
+                                            70
+                                        </td>
+                                        <td>
+                                            90
+                                        </td>
+                                        <td>
+                                            60
+                                        </td>
+                                        <td>
+                                                <!-- Button Modal -->
+                                                <button type="button" class="btn btn-block btn-gray mb-3" data-toggle="modal" data-target="#modal-video">See Video</button>
+                                                <!-- Modal Content -->
+                                                <div class="modal fade" id="modal-video" tabindex="-1" role="dialog" aria-labelledby="modal-video" aria-hidden="true">
+                                                    <div class="modal-dialog modal-light modal-dialog-centered" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header mx-auto">
+                                                                <p class="lead mb-0 text-primary">Video Preview</p>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <video width="100%" height="auto" controls>
+                                                                    <source src="/static/assets/img/videos/result.mp4" type="video/mp4">
+                                                                      Your browser does not support the video tag.
+                                                                </video>
+                                                            </div>
+                                                            <div class="modal-footer d-flex justify-content-center">
+                                                                <button type="button" class="btn btn-sm btn-white text-tertiary" data-dismiss="modal">Awesome!</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- End of Modal Content -->
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4 mb-4">
+                        <div class="card border-light shadow-sm">
+                            <div class="card-header border-bottom border-light d-flex justify-content-between">
+                                <h2 class="h5 mb-0">Friends</h2>
+                                <a href="#" class="btn btn-sm btn-secondary">See all</a>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush list my--3">
+                                    <li class="list-group-item px-0">
+                                        <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <!-- Avatar -->
+                                            <a href="#" class="user-avatar">
+                                                <img class="rounded-circle" alt="Image placeholder" src="/static/assets/img/team/profile-picture-1.jpg">
+                                            </a>
+                                        </div>
+                                        <div class="col-auto ml--2">
+                                            <h4 class="h6 mb-0">
+                                                <a href="#">Christopher Wood</a>
+                                            </h4>
+                                            <span class="text-success">●</span>
+                                            <small>Online</small>
+                                        </div>
+                                        <div class="col text-right">
+                                            <a href="#" class="btn btn-sm btn-tertiary"><i class="fas fa-trophy mr-1"></i> Score</a>
+                                        </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item px-0">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <!-- Avatar -->
+                                                <a href="#" class="user-avatar">
+                                                    <img class="rounded-circle" alt="Image placeholder" src="/static/assets/img/team/profile-picture-2.jpg">
+                                                </a>
+                                            </div>
+                                            <div class="col-auto ml--2">
+                                                <h4 class="h6 mb-0">
+                                                    <a href="#">Jose Leos</a>
+                                                </h4>
+                                                <span class="text-warning">●</span>
+                                                <small>In a meeting</small>
+                                            </div>
+                                            <div class="col text-right">
+                                                <a href="#" class="btn btn-sm btn-tertiary"><i class="fas fa-trophy mr-1"></i> Score</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item px-0">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <!-- Avatar -->
+                                                <a href="#" class="user-avatar">
+                                                    <img class="rounded-circle" alt="Image placeholder" src="/static/assets/img/team/profile-picture-3.jpg">
+                                                </a>
+                                            </div>
+                                            <div class="col-auto ml--2">
+                                                <h4 class="h6 mb-0">
+                                                    <a href="#">Bonnie Green</a>
+                                                </h4>
+                                                <span class="text-danger">●</span>
+                                                <small>Offline</small>
+                                            </div>
+                                            <div class="col text-right">
+                                                <a href="#" class="btn btn-sm btn-tertiary"><i class="fas fa-trophy mr-1"></i> Score</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item px-0">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <!-- Avatar -->
+                                                <a href="#" class="user-avatar">
+                                                    <img class="rounded-circle" alt="Image placeholder" src="/static/assets/img/team/profile-picture-4.jpg">
+                                                </a>
+                                            </div>
+                                            <div class="col-auto ml--2">
+                                            <h4 class="h6 mb-0">
+                                                    <a href="#">Neil Sims</a>
+                                            </h4>
+                                            <span class="text-success">●</span>
+                                            <small>Online</small>
+                                            </div>
+                                            <div class="col text-right">
+                                                <a href="#" class="btn btn-sm btn-tertiary"><i class="fas fa-trophy mr-1"></i> Score</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            </div>
+                    </div>
+                    <div class="col-12 col-lg-4 mb-4">
+                        <div class="card border-light shadow-sm">
+                            <div class="card-header border-bottom border-light">
+                                <h2 class="h5 mb-0">High Score track</h2>
+                            </div>
+                            <div class="card-body">
+                                {%for i in range(0, exercise_len)%}
+                                    <div class="row align-items-center mb-4">
+                                        <div class="col-auto">
+                                            <span class="icon icon-md text-{{colours[i]}}"><img alt="Image placeholder" src="/static/assets/img/exercises/{{exercise_icons[i]}}" class="user-avatar md-avatar rounded-circle"></span>
+                                        </div>
+                                        <div class="col">
+                                            <div class="progress-wrapper">
+                                                <div class="progress-info">
+                                                    <div class="h6 mb-0">{{exercises[i]}}</div>
+                                                    <div class="small font-weight-bold text-dark"><span>34 %</span></div>
+                                                </div>
+                                                <div class="progress mb-0">
+                                                    <div class="progress-bar bg-{{colours[i]}}" role="progressbar" aria-valuenow="34" aria-valuemin="0" aria-valuemax="100" style="width: 34%;"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {%endfor%}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-4 mb-4">
+                        <div class="col-12 px-0 mb-4">
+                            <div class="card border-light shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between border-bottom border-light pb-3">
+                                        <div>
+                                            <h6 class="mb-0"><span class="icon icon-xs mr-3"><span class="fas fa-globe-europe"></span></span>Global Rank</h6>
+                                        </div>
+                                        <div>
+                                            <a href="#" class="text-primary font-weight-bold">#755<span class="fas fa-chart-line ml-2"></span></a>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between border-bottom border-light py-3">
+                                        <div>
+                                            <h6 class="mb-0"><span class="icon icon-xs mr-3"><span class="fas fa-flag-usa"></span></span>Country Rank</h6>
+                                            <div class="small card-stats">United States<span class="icon icon-xs text-success ml-2"><span class="fas fa-angle-up"></span></span></div>
+                                        </div>
+                                        <div>
+                                            <a href="#" class="text-primary font-weight-bold">#32<span class="fas fa-chart-line ml-2"></span></a>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between pt-3">
+                                        <div>
+                                            <h6 class="mb-0"><span class="icon icon-xs mr-3"><span class="fas fa-folder-open"></span></span>Category Rank</h6>
+                                            <a href="#" class="small card-stats">Exercises > Lunge</a>
+                                        </div>
+                                        <div>
+                                            <a href="#" class="text-primary font-weight-bold">#16<span class="fas fa-chart-line ml-2"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+            </div> 
+        </div>
+
+        {% include 'includes/footer.html' %}
+
+    </main>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

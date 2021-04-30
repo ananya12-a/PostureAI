@@ -1,0 +1,54 @@
+@load !upperLimits !95i
+@load !lowerLimits !85i
+@load !idealAngles @avg &lowerLimit &upperLimit
+@load !ranges @divide @absDiff &upperLimit &lowerLimit !2i
+
+@load !rightAngles @angle3 &kp[0][9][0] &kp[0][10][0] &kp[0][11][0] &kp[0][9][1] &kp[0][10][1] &kp[0][11][1]
+@load !leftAngles @angle3 &kp[0][12][0] &kp[0][13][0] &kp[0][14][0] &kp[0][12][1] &kp[0][13][1] &kp[0][14][1]
+
+@load !rightKneeScores @angleScore &rightAngle &idealAngle &range
+@load !leftKneeScores @angleScore &leftAngle &idealAngle &range
+@load !rightKneeFeedbacks @if @and @gte &rightAngle &lowerLimit  @lte &rightAngle &upperLimit !Goods @if @gt &rightAngle &upperLimit !" forming an angle greater than 90" !"forming an angle lesser than 90"
+@load !leftKneeFeedbacks @if @and @gte &leftAngle &lowerLimit  @lte &leftAngle &upperLimit !Goods @if @gt &leftAngle &upperLimit !" forming an angle greater than 90" !"forming an angle lesser than 90"
+
+@puts !rightKneeScores &rightKneeScore
+@puts !rightKneeFeedbacks &rightKneeFeedback
+@puts !rightKneeResults @concat !"Right Knee: " &rightKneeScore &rightKneeFeedback 
+
+@puts !leftKneeScores &leftKneeScore
+@puts !leftKneeFeedbacks &leftKneeFeedback
+@puts !leftKneeResults @concat !"Left knee: " &leftKneeScore &leftKneeFeedback
+
+
+
+
+@load !upperLimits !95i
+@load !lowerLimits !80i
+
+@load !backAngles @ath &kp[0][1][0] &kp[0][8][0] &kp[0][1][1] &kp[0][8][1]
+@load !idealAngles @avg &upperLimit &lowerLimit
+@load !ranges @divide @absDiff &upperLimit &lowerLimit !2i
+
+@load !Scores @angleScore &backAngle &idealAngle &range
+@load !Feedbacks @if @and @gte &backAngle &lowerLimit @lte &backAngle &upperLimit !Goods @if @gt &backAngle &upperLimit !" Your back is too upright" !"Your back is too close to your knees"
+
+@puts !backScores &Score
+@puts !backFeedbacks &Feedback
+@puts !backResults @concat !"Back: " &Score &Feedback 
+
+
+
+
+
+@load !frontKnees @if @gt &kp[0][13][1] &kp[0][10][1] !13i !10i
+@load !frontKneeFeedbacks @if @eq &frontKnee !13i @if @lte @diff &kp[0][19][0] &kp[0][13][0] @dist &kp[0][14][0] &kp[0][21][0] &kp[0][14][1] &kp[0][21][1] !Goods !"Your knee are going over your toes" @if @lte @diff &kp[0][22][0] &kp[0][10][0] @dist &kp[0][11][0] &kp[0][24][0] &kp[0][11][1] &kp[0][24][1] !Goods !"going over your toes" 
+@load !frontKneeScores @if @eq &frontKnee !13i @ltScore @diff &kp[0][19][0] &kp[0][13][0] @dist &kp[0][14][0] &kp[0][21][0] &kp[0][14][1] &kp[0][21][1] @ltScore @diff &kp[0][22][0] &kp[0][10][0] @dist &kp[0][11][0] &kp[0][24][0] &kp[0][11][1] &kp[0][24][1]
+
+@puts !frontKneeScores &frontKneeScore
+@puts !frontKneeFeedbacks &frontKneeFeedback
+@puts !frontKneeResults @if @eq &frontKneeFeedback !Goods @if @gt &frontKneeScore !80i @concat !"front Knee: " &frontKneeScore !Goods @gt &frontKneeScore !60i @concat !"front Knee: " &frontKneeScore !Okays @concat !"front Knee: " &frontKneeScore !Bads @concat !"front Knee: " &frontKneeScore &frontKneeFeedback 
+
+
+@load !averageVals @divide @sum @sum @sum &rightKneeScore &leftKneeScore &Score &frontKneeScore !4i
+@puts !averageVals &averageVal
+@puts !averages @concat2 !"Average score: "  &averageVal
