@@ -5,8 +5,10 @@ sys.path.append('build/python')
 from openpose import pyopenpose as op
 from engine import Engine
 import time
+import asyncio
 
 exercises = []
+keypoints = []
 
 """def printScores(fileName, keyPoints, frontString, outputName, feedbackName):
     x = Engine("test_engine")
@@ -40,25 +42,80 @@ exercises = []
 
     print ("Average score: " + str(round((score1+score2+score3+score4)/4,2)))"""
 
-def analyse_frame(opencv_frame, exercise):
+    
+
+
+
+def get_exercise_function(o,e):
+    return exercise_dict[o][e]
+
+def analyse_frame_sync(opencv_frame, exercise, orientation):
     datum = op.Datum()
     datum.cvInputData = opencv_frame
     opWrapper.emplaceAndPop(op.VectorDatum([datum]))
-    return exercise(datum.poseKeypoints)
+    exercise_function = get_exercise_function(orientation,exercise)
+    return exercise_function(datum.poseKeypoints), datum.poseKeypoints
 
-def analyse_video(opencv_video, exercise):
+def analyse_video_sync(opencv_video, exercise, orientation):
     while (opencv_video.isOpened()):
         ret, frame = opencv_video.read()
+        frame = cv2.resize(frame, (368,368))
+        sum = 0
         #print (int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT)))
         for i in range(int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT))):
             if ret==True:
-                print(i)
-                x = analyse_frame(frame, exercise)
+                print('frame:' + str(i))
+                x, keypoint_frame = analyse_frame_sync(frame, exercise, orientation)
                 x['frame'] = i
+                sum = sum + x['scores']['average']
                 exercises.append(x)
+                keypoints.append({'frame': i, 'keypoints': keypoint_frame.tolist()})
                 print (exercises)
             else:
                 break
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        avg = round(sum/int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT)),0)
+        return {'keypoints': keypoints, 'analysis': exercises, 'avgscore': avg}
+        break
+
+async def analyse_frame(opencv_frame, exercise, frame):
+    print("async analyse_frame called")
+    datum = op.Datum()
+    datum.cvInputData = opencv_frame
+    opWrapper.emplaceAndPop(op.VectorDatum([datum]))
+    return exercise(datum.poseKeypoints), datum.poseKeypoints, frame
+
+async def analyse_video(opencv_video, exercise, orientation):
+    while (opencv_video.isOpened()):
+        ret, frame = opencv_video.read()
+        frame = cv2.resize(frame, (368,368))
+        sum = 0
+        #print (int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT)))
+        tasks = []
+        for i in range(int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT))):
+            if ret==True:
+                print('frame:' + str(i))
+                #loop = asyncio.new_event_loop()
+                #asyncio.set_event_loop(loop)
+                #loop.create_task(analyse_frame(frame, get_exercise_function(orientation,exercise)))
+                #x, keypoint_frame = loop.run_forever()
+                #x, keypoint_frame = loop.run_until_complete(analyse_frame(frame, get_exercise_function(orientation,exercise)))
+                #loop.close()
+                tasks.append(asyncio.create_task(analyse_frame(frame, get_exercise_function(orientation,exercise), i)))
+            else:
+                break
+        returns = await asyncio.gather(*tasks)
+        for (x,keypoint_frame, i) in returns:
+            x['frame'] = i
+            sum = sum + x['scores']['average']
+            exercises.append(x)
+            keypoints.append({'frame': i, 'keypoints': keypoint_frame.tolist()})
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        avg = round(sum/int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT)),0)
+        return {'keypoints': keypoints, 'analysis': exercises, 'avgscore': avg}
+        break
 
 def squatSideView(keyPoints):
     x = Engine("test_engine")
@@ -95,6 +152,7 @@ def squatPostureFrontViewOld(keyPoints):
     else:
         print("Distance check: " + output['name'])
     #Check to see if feet are anchored at the heel
+
 
 
 """def lungePostureSideViewOld(keyPoints):
@@ -139,6 +197,8 @@ def sideLungeFrontView(keyPoints):
     score = {'footAngle': output['angleScore'], 'kneePosition': output['kneeScore'], 'average': output['averageVal']}
     feedback = {'footAngle': output['angleFeedback'], 'kneePosition': output['kneeFeedback']}
     return({'type':sideLungeFrontView, 'frame': 0, 'scores': score, 'feedbacks': feedback})
+
+exercise_dict = {"front":{"squat": "", "lunge": "", "sideLunge": sideLungeFrontView},"side":{"squat": squatSideView, "lunge": lungeSideView, "sideLunge": ""}}
 
 
 opWrapper = op.WrapperPython()
@@ -186,9 +246,9 @@ cv2.destroyAllWindows()"""
 
 #Video code end
 
-cap = cv2.VideoCapture("refPics/squatSideEdited2.mp4")
-analyse_video(cap,lungeSideView)
-print (exercises)
+#cap = cv2.VideoCapture("refPics/squatSideEdited2.mp4")
+#analyse_video(cap,lungeSideView)
+#print (exercises)
 
 #Image code start
 """img = cv2.imread('refPics/sidelungeBad.jpg')

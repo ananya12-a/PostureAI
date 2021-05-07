@@ -14,12 +14,12 @@ from dateutil.relativedelta import *
 exercises = ["Squat", "Lunge", "Side Lunge"]
 colours = ["success", "info", "warning"]
 exercise_images = ["squat.png", "lunge.png", "sideLunge.png"]
-
+print('called')
 @blueprint.route('/index')
 @login_required
 def index():
 
-    return render_template('index.html', segment='index')
+    return render_template('dashboard.html', segment='index')
 
 @blueprint.route('/<template>')
 @login_required
