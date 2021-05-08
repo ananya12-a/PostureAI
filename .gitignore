@@ -36,6 +36,9 @@ LOG*
 CURRENT
 MANIFEST-*
 
+# Redis database
+*.rdb
+
 ######################### IDEs Files #########################
 # Editor temporaries
 *.swp
@@ -122,6 +125,7 @@ build*
 *cmake_build
 distribute/*
 python/caffe/proto/
+python/*
 
 ######################### Generated Documentation #########################
 _site
@@ -138,3 +142,9 @@ html/
 
 ######################### Validation Scripts & Testing #########################
 output*/
+
+
+
+######################### User Data for PostureAI #########################
+data/*
+video_uploads/*

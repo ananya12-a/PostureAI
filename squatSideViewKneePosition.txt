@@ -1,4 +1,0 @@
-@puts !leftFeedbacks @if @lte @diff &kp[0][19][0] &kp[0][13][0] @dist &kp[0][14][0] &kp[0][21][0] &kp[0][14][1] &kp[0][21][1] !Goods !"Your knee are going over your toes" 
-@puts !leftOutputs @ltScore @diff &kp[0][19][0] &kp[0][13][0] @dist &kp[0][14][0] &kp[0][21][0] &kp[0][14][1] &kp[0][21][1]
-@puts !rightFeedbacks @if @lte @diff &kp[0][22][0] &kp[0][10][0] @dist &kp[0][11][0] &kp[0][24][0] &kp[0][11][1] &kp[0][24][1] !Goods !"Your knee are going over your toes" 
-@puts !rightOutputs @ltScore @diff &kp[0][22][0] &kp[0][10][0] @dist &kp[0][11][0] &kp[0][24][0] &kp[0][11][1] &kp[0][24][1]
