@@ -1,0 +1,9 @@
+@load !upperLimits !95i
+@load !lowerLimits !80i
+
+@load !angles @ath &kp[0][1][0] &kp[0][8][0] &kp[0][1][1] &kp[0][8][1]
+@load !idealAngles @avg &upperLimit &lowerLimit
+@load !ranges @divide @absDiff &upperLimit &lowerLimit !2i
+
+@puts !Outputs @angleScore &angle &idealAngle &range
+@puts !Feedbacks @if @and @gte &angle &lowerLimit @lte &angle &upperLimit !Goods @if @gt &angle &upperLimit !" Your back is too upright" !"Your back is too close to your knees"

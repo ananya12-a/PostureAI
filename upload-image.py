@@ -1,7 +1,7 @@
 from quart import Quart, flash, request, redirect, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 import os
-from Functions import analyse_video, squatSideView, get_exercise_function, analyse_video_sync
+from Functions import analyse_video
 import redis_main
 import cv2
 import json
@@ -58,10 +58,10 @@ async def analyse(filepath, exercise, orientation):
     submission_id = str(uuid())
 
     #print (list(keypoints))
-    return 
     os.makedirs(os.path.join('volt', 'data/' + user + '/' + submission_id))
     with open('volt/data/' + user + '/' + submission_id +'/keypoints.json', 'w') as outfile:
         json.dump(list(keypoints), outfile)
+    print("hello")
     create_submissionTable_entry(str(exercise), user, id = submission_id, orientation = "front", seconds_analysed = duration, keypoints = 'data/' + user + '/'  + submission_id +'/keypoints.json')
 
 @app.route('/upload-image', methods=['GET', 'POST'])
@@ -81,8 +81,7 @@ async def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            asyncio.get_running_loop().run_in_executor(executor, 
-            lambda : analyse(UPLOAD_FOLDER+'/' + filename, "squat",'side'))
+            await analyse(UPLOAD_FOLDER+'/' + filename, "squat",'side')
             return redirect(url_for('uploaded_file',
                                     filename=filename))
     return '''
@@ -100,14 +99,5 @@ async def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
 
 
-
-"""@app.route('/schedule', methods=['POST', 'GET'])
-def home():
-    error = None
-    if request.method == 'POST':
-        os.mkdir(os.path.join("video_uploads", ))
-        request.form['filepath']
-        
-    return render_template('index.html', error=error)"""
 if __name__ == '__main__':
     app.run(debug = True)

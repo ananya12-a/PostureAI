@@ -1,67 +1,38 @@
 import cv2
 import sys
 import math
-sys.path.append('build/python')
+sys.path.append('python')
 from openpose import pyopenpose as op
 from engine import Engine
 import time
 import asyncio
+import numpy
 
-exercises = []
-keypoints = []
+#shift this to another util file later on
+class LoopBreak(Exception):
+    pass
 
-"""def printScores(fileName, keyPoints, frontString, outputName, feedbackName):
-    x = Engine("test_engine")
-    x['kp'] = keyPoints
-    x.run(fileName)
-    output = x.output_dict()
-    if (output[feedbackName]=="Good"):
-        if (output[outputName]>80):
-            print(frontString + ": " + str(output[outputName]) + " Good")
-        elif (output[outputName]>60):
-            print(frontString + ": "+ str(output[outputName]) + " Okay")
-        else:
-            print(frontString + ": "+ str(output[outputName]) + " Bad")
-    else:
-        print(frontString + ": "+ str(output[outputName]) + " " +str(output[feedbackName]))
-    return output[outputName]"""
+opWrapper = op.WrapperPython()
+opWrapper.configure({"model_pose": "BODY_25"})
+opWrapper.start()
 
-"""def squatPostureSideViewOld(keyPoints):
+engine = Engine("upload-image-test-engine")
 
-    #Side view functions:
-    #hips have to go downwards, backwards and outwards
-    score1 = printScores('squatSideViewHipPosition.txt', keyPoints, "Back posture", "backOutput", "backFeedback")
-    score2 = printScores('squatSideViewHipPosition.txt', keyPoints, "Hip posture", "hipOutput", "hipFeedback")
-
-    #knees should not go ahead of the toes
-    score3 = printScores('squatSideViewKneePosition.txt', keyPoints, "Right knee position", "rightOutput", "rightFeedback")
-    score4 = printScores('squatSideViewKneePosition.txt', keyPoints, "Left knee position", "leftOutput", "leftFeedback")
-
-    #Heels glued to the floor
-    #score5 = printScores('squatSideViewHeels.txt', keyPoints, "Heels", "output", "feedback")
-
-    print ("Average score: " + str(round((score1+score2+score3+score4)/4,2)))"""
-
-    
-
-
-
-def get_exercise_function(o,e):
-    return exercise_dict[o][e]
-
-def analyse_frame_sync(opencv_frame, exercise, orientation):
+# Openpose: Will need to change to alphapose
+def analyse_frame_sync(opencv_frame: numpy.ndarray, exercise: str, orientation: str):
     datum = op.Datum()
     datum.cvInputData = opencv_frame
     opWrapper.emplaceAndPop(op.VectorDatum([datum]))
-    exercise_function = get_exercise_function(orientation,exercise)
-    return exercise_function(datum.poseKeypoints), datum.poseKeypoints
+    exercise = inbuilt_exercises[exercise]
+    return exercise.analyse(engine, datum.poseKeypoints, orientation=orientation), datum.poseKeypoints
 
-def analyse_video_sync(opencv_video, exercise, orientation):
+def analyse_video_sync(opencv_video: cv2.VideoCapture, exercise: str, orientation: str):
+    exercises = []
+    keypoints = []
     while (opencv_video.isOpened()):
         ret, frame = opencv_video.read()
         frame = cv2.resize(frame, (368,368))
         sum = 0
-        #print (int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT)))
         for i in range(int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT))):
             if ret==True:
                 print('frame:' + str(i))
@@ -70,203 +41,141 @@ def analyse_video_sync(opencv_video, exercise, orientation):
                 sum = sum + x['scores']['average']
                 exercises.append(x)
                 keypoints.append({'frame': i, 'keypoints': keypoint_frame.tolist()})
-                print (exercises)
             else:
                 break
         cv2.waitKey(0)
         cv2.destroyAllWindows()
         avg = round(sum/int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT)),0)
         return {'keypoints': keypoints, 'analysis': exercises, 'avgscore': avg}
-        break
 
-async def analyse_frame(opencv_frame, exercise, frame):
+# Openpose: Will need to change to alphapose
+async def analyse_frame(opencv_frame: numpy.ndarray, exercise: str, orientation: str, frame: int):
     print("async analyse_frame called")
     datum = op.Datum()
     datum.cvInputData = opencv_frame
     opWrapper.emplaceAndPop(op.VectorDatum([datum]))
-    return exercise(datum.poseKeypoints), datum.poseKeypoints, frame
+    return exercise.analyse(engine, datum.poseKeypoints, orientation = orientation), datum.poseKeypoints, frame
 
-async def analyse_video(opencv_video, exercise, orientation):
+async def analyse_video(opencv_video: cv2.VideoCapture, exercise: str, orientation: str):
+    exercises, keypoints = [], []
     while (opencv_video.isOpened()):
         ret, frame = opencv_video.read()
-        frame = cv2.resize(frame, (368,368))
-        sum = 0
-        #print (int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT)))
-        tasks = []
-        for i in range(int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT))):
-            if ret==True:
-                print('frame:' + str(i))
-                #loop = asyncio.new_event_loop()
-                #asyncio.set_event_loop(loop)
-                #loop.create_task(analyse_frame(frame, get_exercise_function(orientation,exercise)))
-                #x, keypoint_frame = loop.run_forever()
-                #x, keypoint_frame = loop.run_until_complete(analyse_frame(frame, get_exercise_function(orientation,exercise)))
-                #loop.close()
-                tasks.append(asyncio.create_task(analyse_frame(frame, get_exercise_function(orientation,exercise), i)))
-            else:
-                break
+        frame, sum, tasks = cv2.resize(frame, (368,368)), 0, []
+        try: 
+            for i in range(int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT))):
+                if ret==True:
+                    print('frame:' + str(i))
+                    tasks.append(asyncio.create_task(analyse_frame(frame, inbuilt_exercises[exercise], orientation, i)))
+                else:
+                    raise LoopBreak("exiting for loop [for i in range(int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT))):]")
+        except LoopBreak: 
+            pass
         returns = await asyncio.gather(*tasks)
         for (x,keypoint_frame, i) in returns:
-            x['frame'] = i
-            sum = sum + x['scores']['average']
+            x['frame'], sum = i, sum + x['scores']['average']
             exercises.append(x)
             keypoints.append({'frame': i, 'keypoints': keypoint_frame.tolist()})
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        avg = round(sum/int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT)),0)
-        return {'keypoints': keypoints, 'analysis': exercises, 'avgscore': avg}
-        break
+        return {
+            'keypoints': keypoints, 
+            'analysis': exercises, 
+            'avgscore': round(sum/int(opencv_video.get(cv2.CAP_PROP_FRAME_COUNT)),0)
+            }
 
-def squatSideView(keyPoints):
-    x = Engine("test_engine")
-    x['kp'] = keyPoints
-    x.run('squatSideView.txt')
-    output = x.output_dict()
-    """print (output['rightKneeResult'])
-    print (output['leftKneeResult'])
-    print (output['backResult'])
-    print (output['hipResult'])
-    print (output['average'])"""
-    score = {'rightKnee': output['rightKneeScore'], 'leftKnee': output['leftKneeScore'], 'back': output['backScore'], 'hip': output['hipScore'], 'average': output['averageVal']}
-    feedback = {'rightKnee': output['rightKneeFeedback'], 'leftKnee': output['leftKneeFeedback'], 'back': output['backFeedback'], 'hip': output['hipFeedback']}
-    return({'type':squatSideView, 'frame': 0, 'scores': score, 'feedbacks': feedback})
+# TODO: separate class file
+class InvalidExerciseFormat(Exception):
+    pass
 
-def squatPostureFrontViewOld(keyPoints):
-    x = Engine("test_engine")
-    x['kp'] = keyPoints
+class ExerciseAnalyser: 
+    def analyse(self, engine: Engine, keypoints: dict, *args, **kwargs): 
+        raise NotImplementedError
 
-    x.run('squatFrontViewKneePosture.txt')
-    output = x.output_dict()
-    print("Right knee posture: " + output['rightOutput'])
-    print("Left knee posture: " + output['leftOutput'])
+    def statistics(self, analysis_dict: dict, *args, **kwargs):
+        raise NotImplementedError
 
-    x.run('squatFrontViewToePosition.txt')
-    output = x.output_dict()
-    print("Right foot posture: " + output['rightOutput'])
-    print("Left foot posture: " + output['leftOutput'])
-    
-    x.run('squatFrontViewShoulderFeetDistances.txt')
-    output = x.output_dict()
-    if (output['name']=="Bad"):
-        print("Distance check: " + output['improvement'])
-    else:
-        print("Distance check: " + output['name'])
-    #Check to see if feet are anchored at the heel
+class Lunge(ExerciseAnalyser):
+    def analyse(self, engine: Engine, keypoints: dict, *args, **kwargs): 
+        if not 'orientation' in kwargs: 
+            raise InvalidExerciseFormat("Orientation not found")
+        engine['kp'] = keypoints
+        # TODO: rename files to given format
+        engine.run('lunge' + kwargs['orientation'].capitalize() + 'View')
+        output = engine.output_dict()
+        return {
+            'type': self, 
+            'frame': 0, 
+            'scores': {
+                'rightKnee': output['rightKneeScore'], 
+                'leftKnee': output['leftKneeScore'],
+                'back': output['backScore'], 
+                'frontKnee': output['frontKneeScore'], 
+                'average': output['averageVal']
+                }, 
+            'feedbacks': {
+                'rightKnee': output['rightKneeFeedback'], 
+                'leftKnee': output['leftKneeFeedback'],
+                'back': output['backFeedback'], 
+                'frontKnee': output['frontKneeFeedback']
+                }
+            }
 
+class SideLunge(ExerciseAnalyser):
+    def analyse(self, engine: Engine, keypoints: dict, *args, **kwargs):
+        if not 'orientation' in kwargs:
+            raise InvalidExerciseFormat("Orientation not found")
+        engine['kp'] = keypoints
+        #TODO: rename files to given format
+        engine.run('sideLunge' + kwargs['orientation'].capitalize() + 'View')
+        output = engine.output_dict()
+        return {
+            'type': self, 
+            'frame': 0, 
+            'scores': {
+                'rightKnee': output['rightKneeScore'], 
+                'leftKnee': output['leftKneeScore'],
+                'back': output['backScore'], 
+                'frontKnee': output['frontKneeScore'], 
+                'average': output['averageVal']
+                }, 
+            'feedbacks': {
+                'rightKnee': output['rightKneeFeedback'], 
+                'leftKnee': output['leftKneeFeedback'],
+                'back': output['backFeedback'], 
+                'frontKnee': output['frontKneeFeedback']
+                }
+            }
 
+class Squat(ExerciseAnalyser):
+    def analyse(self, engine: Engine, keypoints: dict, *args, **kwargs):
+        if not 'orientation' in kwargs:
+            raise InvalidExerciseFormat("Orientation not found")
+        else: 
+            orientation = kwargs['orientation']
+        engine['kp'] = keypoints
+        #TODO: rename files to given format
+        engine.run('squat' + kwargs['orientation'].capitalize() + 'View')
+        output = engine.output_dict()
+        return {
+            'type': self, 
+            'frame': 0, 
+            'scores': {
+                'rightKnee': output['rightKneeScore'], 
+                'leftKnee': output['leftKneeScore'], 
+                'back': output['backScore'], 
+                'hip': output['hipScore'], 
+                'average': output['averageVal']
+                } if orientation == 'side' else {
 
-"""def lungePostureSideViewOld(keyPoints):
-    #Knees at 90
-    score1 = printScores('lungeSideViewKneeAngle.txt', keyPoints, "Right Knee", "rightOutput", "rightFeedback")
-    score2 = printScores('lungeSideViewKneeAngle.txt', keyPoints, "Left Knee", "leftOutput", "leftFeedback")
+                }, 
+            'feedbacks': {
+                'rightKnee': output['rightKneeFeedback'],
+                'leftKnee': output['leftKneeFeedback'], 
+                'back': output['backFeedback'], 
+                'hip': output['hipFeedback']
+                } if orientation == 'side' else {
 
-    #front knee shouldn't go beyond the ankel
-    score3 = printScores('lungeSideViewKneeToe.txt', keyPoints, "Front knee", "Output", "Feedback")
+                }
+            }
 
-    #Back is bent forward
-    score4 = printScores('lungeSideViewBack.txt', keyPoints, "Back", "Output", "Feedback")
-    #Front leg should be parallel to ground -> front thigh angle to ground near 0
-    print ("Average score: " + str(round((score1+score2+score3+score4)/4,2)))"""
-
-
-def lungeSideView(keyPoints):
-    x = Engine("test_engine")
-    x['kp'] = keyPoints
-    x.run('lungeSideView.txt')
-    output = x.output_dict()
-    score = {'rightKnee': output['rightKneeScore'], 'leftKnee': output['leftKneeScore'],'back': output['backScore'], 'frontKnee': output['frontKneeScore'], 'average': output['averageVal']}
-    feedback = {'rightKnee': output['rightKneeFeedback'], 'leftKnee': output['leftKneeFeedback'],'back': output['backFeedback'], 'frontKnee': output['frontKneeFeedback']}
-    return({'type':sideLungeFrontView, 'frame': 0, 'scores': score, 'feedbacks': feedback})
-
-
-"""def sideLungePostureFrontViewOld(keyPoints):
-
-    #knee doesn't cross toes
-    score1 = printScores('sideLungeFrontViewKneeToe.txt', keyPoints, "knee position", "Output", "feedback")
-
-    #toe angle to vertical is fine
-    score2 = printScores('sideLungeFrontViewAngle.txt', keyPoints, "Foot Angle", "Output", "Feedback")
-
-    print ("Average score: " + str(round((score1+score2)/2,2)))"""
-    
-def sideLungeFrontView(keyPoints):
-    x = Engine("test_engine")
-    x['kp'] = keyPoints
-    x.run('sideLungeFrontView.txt')
-    output = x.output_dict()
-    score = {'footAngle': output['angleScore'], 'kneePosition': output['kneeScore'], 'average': output['averageVal']}
-    feedback = {'footAngle': output['angleFeedback'], 'kneePosition': output['kneeFeedback']}
-    return({'type':sideLungeFrontView, 'frame': 0, 'scores': score, 'feedbacks': feedback})
-
-exercise_dict = {"front":{"squat": "", "lunge": "", "sideLunge": sideLungeFrontView},"side":{"squat": squatSideView, "lunge": lungeSideView, "sideLunge": ""}}
-
-
-opWrapper = op.WrapperPython()
-opWrapper.configure({"model_pose": "BODY_25"})
-opWrapper.start()
-
-#Video code start
-"""cap = cv2.VideoCapture("refPics/squatSide.mp4")
-print('FPS: ' + str(int(cap.get(5))))
-frame_counter = 0
-sum = 0
-start_time = time.time()
-drawn_frame_list = []
-while (cap.isOpened()):
-    ret, frame = cap.read()
-    frame_counter += 1
-    if ret==True:
-        datum = op.Datum()
-        datum.cvInputData = frame
-        opWrapper.emplaceAndPop(op.VectorDatum([datum]))
-        print('Frame: ' + str(frame_counter))
-        sum += squatSideView(datum.poseKeypoints)
-        print()
-        drawn_frame_list.append(datum.cvOutputData)
-        #cv2.imshow("Analysis Preview", datum.cvOutputData)
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            break
-    else:
-        break
-print (time.time()-start_time)
-print ('Total average: ' + str(sum/frame_counter))
-#cap.release()
-frame_width = int(cap.get(3)) 
-frame_height = int(cap.get(4)) 
-size = (frame_width, frame_height) 
-result = cv2.VideoWriter('refPics/result.mp4',cv2.VideoWriter_fourcc(*'X264'), int(cap.get(5)) , size)
-for i in range(len(drawn_frame_list)):
-    # writing to a image array
-    result.write(drawn_frame_list[i])
-result.release()
-cap.release() 
-    
-# Closes all the frames 
-cv2.destroyAllWindows()"""
-
-#Video code end
-
-#cap = cv2.VideoCapture("refPics/squatSideEdited2.mp4")
-#analyse_video(cap,lungeSideView)
-#print (exercises)
-
-#Image code start
-"""img = cv2.imread('refPics/sidelungeBad.jpg')
-datum = op.Datum()
-datum.cvInputData = img
-opWrapper.emplaceAndPop(op.VectorDatum([datum]))"""
-#print("Body keypoints: \n" + str(datum.poseKeypoints))
-#print(datum.poseKeypoints)
-
-#avg = squatSideView(datum.poseKeypoints)
-#avg = lungeSideView(datum.poseKeypoints)
-"""avg = sideLungeFrontView(datum.poseKeypoints)
-
-
-cv2.imshow('Analysis Preview', datum.cvOutputData)
-cv2.waitKey(0)
-cv2.destroyAllWindows()"""
-#Image code end
-
-
-#username, filename, file -> store in postures as posture/userName/fileName //search up saving file in flask + python
+inbuilt_exercises = {'squat': Squat(), 'sideLunge': SideLunge(), 'lunge': Lunge()}

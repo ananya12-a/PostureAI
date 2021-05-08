@@ -204,11 +204,11 @@ def parseString(tokens, t):
         return tokens
 
 
-def parseFile(filepath, state):
+def parseFile(filepath, state, dir = 'exercises/'):
     global cursor
 
     fileContents = list()
-    with open(filepath) as f:
+    with open(dir + filepath + '.mff') as f:
         fileContents = list(filter(lambda i: i!="", f.read().split("\n")))
 
     for line in fileContents:
@@ -287,5 +287,5 @@ class Engine:
     def output_dict(self):
         return self.__internals__['output']
 
-    def run(self, filename):
-        parseFile(filename, self.__internals__["state"])
+    def run(self, filename, dir = 'exercises/'):
+        parseFile(filename, self.__internals__["state"], dir)

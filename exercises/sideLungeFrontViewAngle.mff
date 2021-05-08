@@ -1,0 +1,13 @@
+@load !upperLimits !60i
+@load !lowerLimits !40i
+
+@load !idealAngles @avg &upperLimit &lowerLimit
+@load !ranges @divide @absDiff &upperLimit &lowerLimit !2i
+
+@load !heels @if @lt @absDiff &kp[0][10][0] &kp[0][11][0] @absDiff &kp[0][13][0] &kp[0][14][0] !24i !21i
+@load !toes @if @lt @absDiff &kp[0][10][0] &kp[0][11][0] @absDiff &kp[0][13][0] &kp[0][14][0] !22i !19i
+
+@load !angles @atv &kp[0][&heel][0] &kp[0][&toe][0] &kp[0][&heel][1] &kp[0][&toe][1]
+
+@puts !Outputs @angleScore &angle &idealAngle &range
+@puts !Feedbacks @if @and @gte &angle &lowerLimit @lte &angle &upperLimit !Goods @if @gt &angle &upperLimit !" Turn your front foot inwards" !"Turn your front foot outwards"
