@@ -12,7 +12,9 @@
         </div>
         <div class="row row30">
             <div class="column col70">
-                <p>Frame 7: Good posture</p>
+                <h5>Feedback</h5>
+                <a @click="loadFeedback" > Load Feedback For Frame </a>
+                <p> {{feedbackList}} </p>
             </div>
             <div class="column col30">
                 <p> controls </p>
@@ -25,7 +27,23 @@
     export default {
         props: {
             videoSrc : String,
-        }
+    
+        },
+        data: function() {
+            return {
+                feedbackList: [],
+            }
+        },
+        methods: {
+            loadFeedback: function() {
+                fetch('http://localhost:3000/config/test-list').then(data => data.json().then(
+                    elements2 => this.feedbackList.concat(elements2)
+                ))
+            },
+            debug: () => {
+                console.log('clicked')
+            }
+        },
     }
 </script>
 

@@ -148,3 +148,6 @@ output*/
 ######################### User Data for PostureAI #########################
 data/*
 video_uploads/*
+
+######################## node modules ######################################
+node_modules/*

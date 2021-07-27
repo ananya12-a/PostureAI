@@ -2,7 +2,7 @@
     <div id="container" tabindex="0" @blur="$emit('closeSidebar')">
         <div v-for="element in elements" v-bind:key="element.text">
             <div class="menuElement">
-                    <i :class="element.icon" />
+                    <i :class="element.icon" class="fas"/>
                     <span> <a :href="element.link"> {{element.text}} </a></span>
             </div>
         </div>
@@ -15,26 +15,35 @@
         },
         data: function() {
             return {
-                elements: [
+                elements : [
                     {
-                        text: "Home",
-                        icon: "fa-home",
+                        text: "Dashboard",
+                        icon: "fa-desktop",
                         link: "#",
                     },
                     {
-                        text: "Settings",
-                        icon: "fa-hamburger",
+                        text: "Upload",
+                        icon: "fa-upload",
                         link: "#",
                     },
                     {
-                        text: "Account",
+                        text: "Schedule",
+                        icon: "fa-calendar",
+                        link: "#",
+                    },
+                    {
+                        text: "Profile",
                         icon: "fa-user",
+                        link: "#",
+                    },
+                    {
+                        text: "Leaderboard",
+                        icon: "fa-list-ol",
                         link: "#",
                     },
                 ]
             }
         },
-        
     }
 </script>
 
@@ -49,5 +58,6 @@
 }
 a {
     text-decoration: none !important;
+    color: inherit;
 }
 </style>
