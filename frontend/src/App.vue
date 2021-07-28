@@ -5,11 +5,13 @@
     <div class="navbardiv">
       <Navbar PageTitle="Page Title" @expandMenu="expandMenu"/> 
     </div>
-    <div id="app belownav">
+    <div id="app" class="belownav">
         <VideoElementViewer videoSrc="@/assets/squatSide.mp4" />
     </div>
     <div class="sidebardiv">
-        <sidebar ref='sidebar' class="sidebar" v-if="isSidebarExpanded" @closeSidebar="isSidebarExpanded = false" tabindex="0"/>
+      <transition name="slide-fade">
+        <sidebar ref='sidebar' class="sidebar" v-if="isSidebarExpanded"/>
+      </transition>
     </div>
   </div>
 </template>
@@ -35,28 +37,45 @@ export default {
   methods: {
     expandMenu: function() {
       console.log('menu')
+      document.getElementById("app").addEventListener('click', this.appClick);
       this.isSidebarExpanded = true;
-
-      // TODO: finish focus handling
-      //this.$refs.sidebar.focus();
-      console.log(this.$refs.sidebar);
+    },
+    appClick: function() {
+      document.getElementById("app").removeEventListener('click', this.appClick)
+      this.isSidebarExpanded = false;
     }
   }
 };
 </script>
 
 <style>
+@font-face {
+  font-family: "Montserrat";
+  src: local("Montserrat"),
+   url(/Users/ananyaaggarwal/Desktop/PostureAI/frontend/fonts/Montserrat/Montserrat-Regular.ttf) format("truetype");
+}
+@font-face {
+  font-family: "Playfair Display";
+  src: local("Playfair Display"),
+   url(/Users/ananyaaggarwal/Desktop/PostureAI/frontend/fonts/Playfair_Display/PlayfairDisplay-VariableFont_wght.ttf) format("truetype");
+}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: Montserrat;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   position: absolute;
   color: #2c3e50;
-  height: 80%;
   top: 3em;
+  bottom: 0;
   right: 0;
   left: 0;
+}
+h1,h2,h3,h4,h5,h6{
+  font-family: Playfair Display;
+}
+p{
+  font-family: Montserrat;
 }
 .icons {
   width: 6%;
@@ -71,8 +90,17 @@ export default {
   top: 3em;
   bottom: 0;
 }
+.sidebardiv > * {
+  position: relative;
+  z-index: 1000;
+}
 .navbardiv{
   margin: 0;
+  z-index:1000;
+}
+.navbardiv > * {
+  position: relative;
+  z-index: 1000;
 }
 #container{
   margin: 0;
@@ -84,5 +112,14 @@ body {
 }
 html {
   height: 100%;
+}
+.slide-fade-enter-active {
+  transition: all 1s ease;
+}
+.slide-fade-leave-active {
+  transition: all 1s;
+}
+.slide-fade-enter, .slide-fade-leave-to{
+  transform: translateX(-100%);
 }
 </style>

@@ -23,7 +23,7 @@ app.use(cors());
 
 // Add in routers
 app.use('/config', require('./config.js'))
-//app.use('/accounts', )
+app.use('/accounts', require('./accounts.js'))
 //app.use('/mff', )
 //app.use('/fetch', )
 

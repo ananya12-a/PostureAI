@@ -15,6 +15,11 @@
                     @mouseleave="highlightUserSignIn = false">{{name}}</p>
                 </div>
                 <div v-if="showDropdown" class="menuElement grey">
+                    <div class="circular-portrait">
+                        <img src="@/assets/logo.png"/>
+                    </div>
+                    <h4 class="username">{{name}}</h4>
+                    <hr>
                     <div v-for="element in elements" v-bind:key="element.text">
                         <div>
                                 <i :class="element.icon" class="fas"/>
@@ -40,28 +45,18 @@
                 showDropdown: false,
                 elements: [
                     {
-                        text: "Dashboard",
-                        icon: "fa-desktop",
+                        text: "Add Account",
+                        icon: "fa-user-plus",
                         link: "#",
                     },
                     {
-                        text: "Upload",
-                        icon: "fa-upload",
+                        text: "Sign out",
+                        icon: "fa-sign-out-alt",
                         link: "#",
                     },
                     {
-                        text: "Schedule",
-                        icon: "fa-calendar",
-                        link: "#",
-                    },
-                    {
-                        text: "Profile",
-                        icon: "fa-user",
-                        link: "#",
-                    },
-                    {
-                        text: "Leaderboard",
-                        icon: "fa-list-ol",
+                        text: "Settings",
+                        icon: "fa-cog",
                         link: "#",
                     },
                 ]
@@ -81,7 +76,22 @@
   display: flex;
   height: 2em;
 }
-
+.username{
+    text-align:center;
+    margin: 5% 0;
+}
+.menuElement{
+    padding: 5% 3%;
+}
+.circular-portrait img {
+  width: 40%;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  border-radius: 50%;
+}
 .column {
   flex: 33%;
   text-align: center;
@@ -130,7 +140,8 @@
     float:right;
     margin-top:1.5%;
     text-align:left;
-    min-width:fit-content;
+    width:fit-content;
+    z-index: 999;
 }
 .menuElement > div > div > i{
     padding:1% 2%;
