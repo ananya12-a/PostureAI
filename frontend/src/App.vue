@@ -1,5 +1,6 @@
 <template>
   <div id="container">
+    <mediapipe></mediapipe>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <div class="navbardiv">
@@ -8,11 +9,12 @@
     <div id="app" class="belownav">
         <VideoElementViewer videoSrc="@/assets/squatSide.mp4" />
     </div>
-    <div class="sidebardiv">
+    <!--<div class="sidebardiv">
       <transition name="slide-fade">
         <sidebar ref='sidebar' class="sidebar" v-if="isSidebarExpanded"/>
       </transition>
-    </div>
+    </div>-->
+  
   </div>
 </template>
 
@@ -20,14 +22,16 @@
 //import HelloWorld from './components/HelloWorld.vue'
 import VideoElementViewer from "./components/VideoElementViewer.vue";
 import Navbar from './components/Navbar.vue'
-import sidebar from './components/sidebar.vue'
+import mediapipe from './components/mediapipe.vue'
+//import sidebar from './components/sidebar.vue'
+
 
 export default {
   name: "App",
   components: {
     VideoElementViewer,
     Navbar,
-    sidebar,
+    mediapipe,
   },
   data: function() {
     return {

@@ -2,7 +2,7 @@
     <div class="card">
         <div class="row row70">
             <div class="column col70">
-                <video controls controlsList="nodownload nofullscreen noremoteplayback" :id="id" :key="videoSrc">
+                <video  controlsList="nodownload nofullscreen noremoteplayback" :id="id" :key="videoSrc">
                     <source src="@/assets/squatSide.mp4" type="video/mp4"/>
                 </video>
             </div>
@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import {Pose, POSE_CONNECTIONS} from "@mediapipe/pose";
+//import {Pose, POSE_CONNECTIONS} from "@mediapipe/pose";
     export default {
         props: {
             videoSrc : String,
@@ -44,9 +44,11 @@ import {Pose, POSE_CONNECTIONS} from "@mediapipe/pose";
                 results: [],
                 pose: 0,
                 id: 1,
+                active: false
             }
         },
         created: function() {
+            // eslint-disable-next-line no-undef
             this.pose = new Pose({locateFile: (file) => {
                     return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
                 }
@@ -58,34 +60,40 @@ import {Pose, POSE_CONNECTIONS} from "@mediapipe/pose";
                 minTrackingConfidence: 0.5
             });
 
+            //this.pose.onReady(function(){ this.active = true })
+
             this.pose.onResults(result => {
+                console.log(result)
                 this.feedbackList = this.results === result
+                
+                // eslint-disable-next-line no-undef
                 this.results = {landmarks: result.poseLandmarks, POSE_CONNECTIONS: POSE_CONNECTIONS, pc_length: POSE_CONNECTIONS.length, l_length: result.poseLandmarks.length}
                 // call mff and get analysable results
-                //update plot
+                // update plot
                 //make a new file, called plot.js, functions each take in a result object, and return plotly graph
             });
         },
         methods: {
             loadFeedback: function() {
-                console.log('asdfa')
-                fetch('http://localhost:3000/config/test-list').then(data => data.json().then(
-                    elements2 => this.feedbackList = this.feedbackList.concat(elements2)
-                ))
+                //console.log('asdfa')
+                //fetch('http://localhost:3000/config/test-list').then(data => data.json().then(
+                //    elements2 => this.feedbackList = this.feedbackList.concat(elements2)
+                //))
             },
             debug: () => {
                 console.log('clicked')
             },
             nextFrame: function() {
+                //if (!this.active) return;
                 let video = document.getElementById(this.id)
                 video.currentTime += 1/8
-                console.log(video);
-
                 this.pose.send({image: video})
             },
             prevFrame: function() {
+                //if (!this.active) return;
                 let video = document.getElementById(this.id)
                 video.currentTime -= 1/8
+                this.pose.send({image: video})
             },
         },
     }
