@@ -2,6 +2,7 @@ const express = require('express')
 const bp = require("body-parser");
 const cors = require('cors');
 
+
 const app = express()
 const port = 3000 //|| args['port']
 
@@ -23,7 +24,9 @@ app.use(cors());
 
 // Add in routers
 app.use('/config', require('./config.js'))
-app.use('/accounts', require('./accounts.js'))
+app.use('/account', require('./account.js'))
+app.use('/social', require('./social.js'))
+app.use('/submission', require('./submission.js'))
 //app.use('/mff', )
 //app.use('/fetch', )
 

@@ -1,6 +1,5 @@
 <template>
     <div>
-        <!--split up into components-->
         <div class="row row70">
             <div class="column col70">
                 <video  controlsList="nodownload nofullscreen noremoteplayback" :id="id" :key="videoSrc" class="hidden" ref="video_source">
@@ -9,16 +8,7 @@
                 <canvas width="1280px" height="720px" ref="output_canvas"></canvas>
             </div>
             <div class="column col30">
-                <md-list>
-                    <md-subheader> Average Score: {{averageScore}} </md-subheader>
-                    <md-list-item v-for="feedback in feedbackList" v-bind:key="feedback.attr" :style="getColor(feedback)">
-                        <md-icon v-if="feedback.score <= 65 && feedback.score > 30" :style="getColor(feedback)">warning</md-icon>
-                        <md-icon v-else-if="feedback.score > 65" :style="getColor(feedback)">check</md-icon>
-                        <md-icon v-else :style="getColor(feedback)" >error</md-icon>
-                        <span class="md-list-item-text" :style="getColor(feedback)"><strong>{{feedback.attr}}:</strong> {{feedback.feedback}}</span>
-                        <md-tooltip md-direction="left"> <strong> Score:</strong> {{feedback.score}} </md-tooltip>
-                    </md-list-item>
-                </md-list>
+                <scoreList :feedbackList="feedbackList" :averageScore="averageScore"/>
             </div>
         </div>
 
@@ -27,36 +17,7 @@
                 <ChartComponent :yvals="frameData" v-bind:key="frameData.length"/>
             </div>
             <div class="column col30 controls">
-                    <div class="md-layout md-gutter">
-                        <md-field class="md-layout-item">
-                            <md-select v-model="excerciseType" id="movie" placeholder="Exercise Name" @click="console.log('change')"> <!--@change change exercise analysis-->
-                                <md-optgroup label="Side View">
-                                    <md-option v-for="excerciseType in excerciseTypes.side" v-bind:key="excerciseType" :value="excerciseType">{{excerciseType}}</md-option>
-                                </md-optgroup>
-                                <md-optgroup label="Front View">
-                                    <md-option v-for="excerciseType in excerciseTypes.front" v-bind:key="excerciseType" :value="excerciseType">{{excerciseType}}</md-option>
-                                </md-optgroup>
-                            </md-select>
-                        </md-field>
-                        <md-switch v-model="annotations" @change="sameFrame" class="annotation-switch md-layout-item">Anotations</md-switch>
-                    </div>
-                    <div class="md-layout md-gutter second-row">
-                        <div class="md-layout-item">
-                            <VueSlider v-model="framerate" :min="0" :max="60" :interval="1" class="framerate-slider"/>
-                            Framerate: {{framerate}}
-                        </div>
-                        <div class="md-layout-item">
-                            <md-button class="md-icon-button md-raised" @click="prevFrame">
-                                <md-icon>fast_rewind</md-icon>
-                            </md-button>
-                            <md-button class="md-icon-button md-raised" @click="nextFrame">
-                                <md-icon>fast_forward</md-icon>
-                            </md-button>
-                        </div>
-                        
-                        
-                    </div>
-                    
+                <ControlPanel :excerciseTypes="excerciseTypes" :framerate="framerate" :annotations="annotations" @nextFrame="nextFrame" @prevFrame="prevFrame" @sameFrame="sameFrame" @framerate-update="updateframerate" @exercise-update="updateExcercise"/>
             </div>
         </div>
     </div>
@@ -64,16 +25,19 @@
 
 <script>
 import ChartComponent from "./ChartComponent.vue";
+//import videoView from "./videoView.vue";
+import ScoreList from "./ScoreList.vue";
+import ControlPanel from "./ControlPanel.vue";
 //import {Pose, POSE_CONNECTIONS} from "@mediapipe/pose";
 import engine from "../assets/engine.js";
 import lungeAnalyse from "../assets/lungesAnalysis.js";
 import squatAnalyse from "../assets/squatAnalysis.js";
-import VueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/antd.css'
+
     export default {
         components: {
             ChartComponent,
-            VueSlider,
+            ScoreList,
+            ControlPanel,
         },
         props: {
             videoSrc : String,
@@ -90,12 +54,7 @@ import 'vue-slider-component/theme/antd.css'
                 excerciseTypes: {side: ["Lunge (Side)", "Squat (Side)"], front: ["Side Lunge (Front)"]},//["Lunges(Side View)", "Sit ups(Side View)", "Squats(Side View)"],
                 excerciseType: "Lunge (Side)",
                 view: "Front",
-                framerate: 24,
-                video: {
-                    sourceLink: "",
-                    component: {},
-                    frames: []
-                },
+                framerate: 8,
                 frameData: [],
                 currFrame: -1,
             }
@@ -196,29 +155,20 @@ import 'vue-slider-component/theme/antd.css'
             
         },
         methods: {
-            loadFeedback: function() {
-                //console.log('asdfa')
-                //fetch('http://localhost:3000/config/test-list').then(data => data.json().then(
-                //    elements2 => this.feedbackList = this.feedbackList.concat(elements2)
-                //))
-            },
-            debug: () => {
-                console.log('clicked')
-            },
             sameFrame: function() {
                 console.log("Same Frame")
                 //if (!this.active) return;
                 let video = this.$refs.video_source;
                 console.log(video.currentTime);
                 this.pose.send({image: video})
+                this.annotations = !this.annotations
             },
             nextFrame: function() {
                 console.log("Next Frame")
                 //if (!this.active) return;
                 let video = this.$refs.video_source;
-                this.$refs.video_source.framerate = 1;
                 if (video.duration <= video.currentTime) return;
-                video.currentTime += 1;
+                video.currentTime += 1/this.framerate;
                 this.pose.send({image: video});
                 this.currFrame++;
             },
@@ -226,129 +176,36 @@ import 'vue-slider-component/theme/antd.css'
                 console.log("Prev Frame")
                 //if (!this.active) return;
                 let video = this.$refs.video_source;
-                this.$refs.video_source.framerate = 1;
                 if (0 >= video.currentTime -1) return;
-                video.currentTime -= 1;
+                video.currentTime -= 1/this.framerate;
                 this.pose.send({image: video});
                 this.currFrame--;
             },
-            getColor(feedback) {
-                if (feedback.score <= 65 && feedback.score > 30) {
-                    return `
-                        background-color: #F4B02A;
-                        color: white;`;
-                }
-                else if (feedback.score > 65) {
-                    return `
-                        background-color: #62C370;
-                        color: white;`;
-                }
-                else return `
-                        background-color: #FE654F;
-                        color: white;`;
+            updateframerate: function(rate){
+                
+                this.framerate = rate
+                console.log("Update ", rate)
+            },
+            updateExcercise: function (new_ex){
+                this.excerciseType = new_ex
+                console.log("exercise ", new_ex)
             }
         },//#003F91, #1B9AAA, (#0B63C1)
     }
 </script>
 
 <style scoped>
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-  vertical-align: middle;
-}
-
 .framerate-slider{
     margin-top:15%;
     color:red;
-}
-
-.annotation-switch{
-    display:inline;
-    margin:5% 0%;
 }
 
 .md-icon-button{
     margin:5% 15%;
 }
 
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
-
-#annotation_label{
-    margin: 5% 3%;
-    display:inline-block;
-}
-
-.round:hover {
-  background-color: #ddd;
-  color: black;
-}
-.round {
-    background: #f1f1f1;
-    padding:2%;
-    border-radius: 50%;
-    margin: 2%;
-}
-
 .second-row{
     margin-top:5%;
-}
-
-.a_button{
-    background: #f1f1f1;
 }
 
 .controls{
@@ -358,7 +215,6 @@ input:checked + .slider:before {
 .row70> .col70 > video {
     max-height: 100%;
     max-width: 100%;
-    /*border-radius: 16px 0 0 0;*/
 }
 .row {
   display: flex;
@@ -380,28 +236,10 @@ input:checked + .slider:before {
     height: 30%;
     padding: 1%;
 }
-/*.card {
-    position: relative;
-    background: #fff;
-    box-shadow: 0 15px 25px rgba(0,0,0,0.25);
-    border-radius: 16px 16px 16px 16px;
-    justify-content: center;
-    align-items: center;
-    margin: 5%;
-    z-index: 0;
-    text-align:left;
-}
-.card > * {
-    overflow: hidden;
-}*/
+
 
 .hidden {
     height: 0;
 }
-
-  .md-switch {
-    display: flex;
-  }
-
 
 </style>

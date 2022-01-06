@@ -9,9 +9,15 @@
 
 <script>
 export default {
-    
+    props: {
+        videoSrc : String,
+    },
 }
 </script>
 
 <style scope>
+
+.hidden {
+    height: 0;
+}
 </style>
