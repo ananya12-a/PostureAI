@@ -64,7 +64,7 @@
 </template>
 
 <script>
-//import axios from "axios";
+import axios from "axios";
 import VideoElementViewer from "./components/VideoElementViewer.vue";
 import login from "./components/login.vue"
 import signup from "./components/signup.vue"
@@ -73,6 +73,7 @@ import resetPassword from "./components/resetPassword.vue"
 import profile from "./components/profile.vue"
 import upload from "./components/upload.vue"
 import { mapGetters, mapState } from 'vuex'
+import "./theme.scss"
     export default {
         name: 'App',
         components: {
@@ -87,10 +88,35 @@ import { mapGetters, mapState } from 'vuex'
         props: {
             PageTitle: String,
         },
+        created: function() {
+          const timer = setInterval(async () => {
+            if (this.isAuth) {
+              console.log(this.username, this.token)
+              await axios.post(this.baseURL + '/account/tokenVerify', {
+                username: this.username,
+                token: this.token
+              })
+                .then((res) => {
+                  console.log('returned response', res.data)
+                  if (res.data && res.data.tokenValid === false) {
+                    this.$store.commit('account/logout')
+                  }
+                })
+            }
+          }, 15000);
+
+          this.$once("hook:beforeDestroy", () => {
+            clearInterval(timer);
+          });
+        },
         computed: {
-          ...mapGetters({isAuth: 'account/isLoggedIn'}),
+          ...mapGetters({isAuth: 'account/isLoggedIn', baseURL: 'urls/getURL'}),
           ...mapState('submissions', {
               currentSubState: state => state.currentSubID,
+          }),
+          ...mapState('account', {
+              username: state => state.username,
+              token: state => state.token,
           }),
         },
         mounted:{
@@ -148,6 +174,8 @@ import { mapGetters, mapState } from 'vuex'
           }
         }
     }
+    /*
+*/
 </script>
 
 <style scoped>

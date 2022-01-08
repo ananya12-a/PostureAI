@@ -16,6 +16,17 @@ app.post("/login", async (req, res) => {
     else res.status(404).send("Sorry can't find username/password!")
 });
 
+
+app.post('/tokenVerify', async (req, res) => {
+    //console.log(await getUserId(req.body.username), req.body.token, await verifyToken(await getUserId(req.body.username), req.body.token))
+    if (req.body.username && req.body.token) {
+        return res.json({
+            tokenValid: await verifyToken(await getUserId(req.body.username), req.body.token) === 1
+        });
+    }
+    res.sendStatus(404)
+});
+
 app.post("/signup", async (req, res) => {
     if (req.body.username && req.body.password && req.body.email){
         const username = req.body.username;

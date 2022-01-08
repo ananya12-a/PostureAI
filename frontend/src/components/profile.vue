@@ -10,6 +10,9 @@
             <md-tab id="tab-submissions" md-label="Submissions">
                 <submissions @newSubID="updateSubID"/>
             </md-tab>
+            <md-tab id="tab-settings" md-label="Settings" exact>
+                
+            </md-tab>
         </md-tabs>
     </div>
 </template>
@@ -30,7 +33,7 @@ export default {
     methods:{
         updateSubID(ifUpdated){
             this.$emit('subUpdated', ifUpdated)
-        }
+        },
     }
 }
 </script>

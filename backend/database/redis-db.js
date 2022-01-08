@@ -308,7 +308,7 @@ async function createToken(userId){
   const token = uuid();
   //console.log(token);
   await client.set(`tokens:${userId}`, token);
-  await client.expire(`tokens:${userId}`, 15 * 60 * 60);
+  await client.expire(`tokens:${userId}`, 15*60*60);
   return token;
 }
 

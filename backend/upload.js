@@ -11,12 +11,21 @@ const upload = require('multer')();
 
 //var upload = multer({ storage : storage}).single('video');  
 
-app.get('/',function(req,res){  
-    res.sendFile(__dirname + "/index.html");  
-});
+var path = require('path')
+
+/*var storage = upload.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)) //Appending extension
+  }
+})
+*/
 
 app.post('/uploadfile', upload.single('video'), (req,res)=> {  
     console.log(req.file)
+    //req.file['userID'] = req.body.userID
     console.log(req.body.formDataObj)
     res.sendStatus(200)
     //console.log(req.body.formDataObj.getAll('video'))

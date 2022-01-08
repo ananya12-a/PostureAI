@@ -10,11 +10,18 @@ app.post('/get-submission-list/number/:start/:end', async (req,res) => {
             let x = await getSubTimestamp(req.body.user_id, subs[i])
             timestamps.push(x)
         }
-        res.json({
-            submissions: subs.slice(req.params.start, req.params.end),
-            timestamps: timestamps.slice(req.params.start, req.params.end),
-            invalidToken: await verifyToken(req.body.user_id, req.body.token)
-        })
+
+        if (await verifyToken(req.body.user_id, req.body.token)) {
+            return res.json({
+                submissions: subs.slice(req.params.start, req.params.end),
+                timestamps: timestamps.slice(req.params.start, req.params.end)
+            })
+        } else {
+            return res.status(403).json({
+                invalidToken: true,
+            })
+        }
+        
         
     }
     else res.status(403).send()
@@ -38,11 +45,16 @@ app.post('/get-submission-list/date/:start/:end', async (req,res) => {
         }
         console.log(start, end)
         //put into redis /1000 and to take it out *1000
-        res.json({
-            submissions: subs.slice(start, end),
-            timestamps: timestamps.slice(start, end),
-            invalidToken: await verifyToken(req.body.user_id, req.body.token)
-        })
+        if (await verifyToken(req.body.user_id, req.body.token)) {
+            return res.json({
+                submissions: subs.slice(start, end),
+                timestamps: timestamps.slice(start, end),
+            })
+        } else {
+            return res.status(403).json({
+                invalidToken: true,
+            })
+        }
         
     }
     else res.status(403).send()
@@ -55,9 +67,13 @@ app.post('/get-submission-data', async (req,res) => {
         delete data['exercise_id']
         data['invalidToken'] = await verifyToken(req.body.user_id, req.body.token)
         
-        res.json(
-            data,
-        )
+        if (await verifyToken(req.body.user_id, req.body.token)) {
+            return res.json(data)
+        } else {
+            return res.status(403).json({
+                invalidToken: true,
+            })
+        }
     }
     else res.status(403).send()
 })

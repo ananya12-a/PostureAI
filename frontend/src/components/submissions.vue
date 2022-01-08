@@ -101,12 +101,6 @@ export default {
                         this.timestamps[i] =  new Date(res.data.timestamps[i]).toLocaleString()
                     }
                 })
-                .catch((error)=>{
-                    console.log("err", error)
-                    if (error.response.status===403 && error.response.data.invalidToken){
-                        this.$store.commit('logout')
-                    }
-                })
             }
         },
         endNumber: function(){
@@ -119,12 +113,6 @@ export default {
                         this.timestamps[i] =  new Date(res.data.timestamps[i]).toLocaleString()
                     }
                     
-                })
-                .catch((error)=>{
-                    console.log("err", error)
-                    if (error.response.status===403 && error.response.data.invalidToken){
-                        this.$store.commit('logout')
-                    }
                 })
             }
         },
@@ -140,12 +128,6 @@ export default {
                         this.timestamps[i] =  new Date(res.data.timestamps[i]).toLocaleString()
                     }
                 })
-                .catch((error)=>{
-                    console.log("err", error)
-                    if (error.response.status===403 && error.response.data.invalidToken){
-                        this.$store.commit('logout')
-                    }
-                })
             }
         },
         endDate: function(){
@@ -158,12 +140,6 @@ export default {
                         this.timestamps[i] =  new Date(res.data.timestamps[i]).toLocaleString()
                     }
                     
-                })
-                .catch((error)=>{
-                    console.log("err", error)
-                    if (error.response.status===403 && error.response.data.invalidToken){
-                        this.$store.commit('logout')
-                    }
                 })
             }
         }
@@ -181,11 +157,6 @@ export default {
                 }*/
                 this.subData.timestamp = new Date(this.subData.timestamp*1000).toLocaleString()
                 console.log("i", this.subData)
-            })
-            .catch((error)=>{
-                if (error.response.status===403 && error.response.data.invalidToken){
-                    this.$store.commit('logout')
-                }
             })
         },
         disabledDates(date){

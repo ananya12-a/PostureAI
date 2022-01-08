@@ -64,11 +64,6 @@ export default {
         .then((res)=>{
             this.friends = res.data.friends
         })
-        .catch((error)=>{
-                if (error.response.status===403 && error.response.data.invalidToken){
-                    this.$store.commit('logout')
-                }
-            })
     },
     methods:{
         getInfo(inputted_username){
@@ -83,11 +78,6 @@ export default {
                 }*/
                 this.friendData.timestamp = new Date(this.friendData.timestamp*1000).toLocaleDateString("en-IN")
                 console.log("i", this.friendData)
-            })
-            .catch((error)=>{
-                if (error.response.status===403 && error.response.data.invalidToken){
-                    this.$store.commit('logout')
-                }
             })
         }
     }

@@ -16,11 +16,14 @@
     "chartist-plugin-axistitle": "0.0.7",
     "core-js": "^3.6.5",
     "fps": "0.0.3",
+    "sass": "^1.47.0",
     "vue": "^2.6.11",
     "vue-burger-menu": "^2.0.5",
+    "vue-loader": "^15.9.8",
     "vue-material": "^1.0.0-beta-15",
     "vue-slider-component": "^3.2.15",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2",
+    "vuex-persistedstate": "^4.1.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -29,7 +32,9 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
-    "vue-template-compiler": "^2.6.11"
+    "sass-loader": "^10.2.0",
+    "vue-template-compiler": "^2.6.11",
+    "webpack": "^4.46.0"
   },
   "eslintConfig": {
     "root": true,

@@ -1,9 +1,11 @@
 import Vue from 'vue'
 import App from './App.vue'
 
+import createPersistedState from 'vuex-persistedstate'
+
 import VueMaterial from 'vue-material'
-import 'vue-material/dist/vue-material.min.css'
-import 'vue-material/dist/theme/default.css'
+// /import 'vue-material/dist/vue-material.min.css'
+//import 'vue-material/dist/theme/default.css'
 
 import axios from 'axios';
 
@@ -103,7 +105,10 @@ const store = new Vuex.Store({
     account,
     urls,
     submissions
-  }
+  },
+  plugins: [createPersistedState({
+    storage: localStorage
+  })],
 })
 
 Vue.config.productionTip = false
