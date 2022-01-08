@@ -8,7 +8,7 @@
                 <friendsList :userID="userID" :username="username" :token="token"/>
             </md-tab>
             <md-tab id="tab-submissions" md-label="Submissions">
-                <submissions/>
+                <submissions @newSubID="updateSubID"/>
             </md-tab>
         </md-tabs>
     </div>
@@ -27,6 +27,11 @@ export default {
         username: String,
         token: String,
     },
+    methods:{
+        updateSubID(ifUpdated){
+            this.$emit('subUpdated', ifUpdated)
+        }
+    }
 }
 </script>
 

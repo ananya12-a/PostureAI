@@ -33,17 +33,10 @@
       <md-app-content>
         <div v-if="isAuth">
           <div v-if="currentPage==='Upload'">
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, non molestias et! Earum magnam, similique, quo recusandae placeat dicta asperiores modi sint ea repudiandae maxime? Quae non explicabo, neque.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, non molestias et! Earum magnam, similique, quo recusandae placeat dicta asperiores modi sint ea repudiandae maxime? Quae non explicabo, neque.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, non molestias et! Earum magnam, similique, quo recusandae placeat dicta asperiores modi sint ea repudiandae maxime? Quae non explicabo, neque.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, non molestias et! Earum magnam, similique, quo recusandae placeat dicta asperiores modi sint ea repudiandae maxime? Quae non explicabo, neque.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, non molestias et! Earum magnam, similique, quo recusandae placeat dicta asperiores modi sint ea repudiandae maxime? Quae non explicabo, neque.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, non molestias et! Earum magnam, similique, quo recusandae placeat dicta asperiores modi sint ea repudiandae maxime? Quae non explicabo, neque.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, non molestias et! Earum magnam, similique, quo recusandae placeat dicta asperiores modi sint ea repudiandae maxime? Quae non explicabo, neque.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, non molestias et! Earum magnam, similique, quo recusandae placeat dicta asperiores modi sint ea repudiandae maxime? Quae non explicabo, neque.</p>
+          <upload/>
           </div>
           <div v-if="currentPage==='Profile'">
-            <profile :userID="userData.userID" :username="userData.username" :token="userData.token"/>
+            <profile :userID="userData.userID" :username="userData.username" :token="userData.token" @subUpdated="currentPage='Dashboard'"/>
           </div>
           <div v-if="currentPage === 'Dashboard'">
           <VideoElementViewer/>
@@ -78,8 +71,8 @@ import signup from "./components/signup.vue"
 import forgotPassword from "./components/forgotPassword.vue"
 import resetPassword from "./components/resetPassword.vue"
 import profile from "./components/profile.vue"
-import { mapGetters } from 'vuex'
-
+import upload from "./components/upload.vue"
+import { mapGetters, mapState } from 'vuex'
     export default {
         name: 'App',
         components: {
@@ -89,12 +82,21 @@ import { mapGetters } from 'vuex'
           forgotPassword,
           resetPassword,
           profile,
+          upload,
         },
         props: {
             PageTitle: String,
         },
         computed: {
-          ...mapGetters({isAuth: 'account/isLoggedIn'})
+          ...mapGetters({isAuth: 'account/isLoggedIn'}),
+          ...mapState('submissions', {
+              currentSubState: state => state.currentSubID,
+          }),
+        },
+        mounted:{
+          useCurrentSub(){
+            this.currentSub = this.currentSubState
+          }
         },
         data: () => ({
             menuVisible: false,
@@ -103,6 +105,7 @@ import { mapGetters } from 'vuex'
             isSignedUp:true,
             isForgetPassword:false,
             isEmailSent:false,
+            currentSub:"",
             userData: {
               userID: "",
               username: "",
@@ -127,7 +130,7 @@ import { mapGetters } from 'vuex'
             this.userData.password = data.password
             this.userData.username = data.username
             this.userData.token = data.token
-            this.isLoggedIn = true;
+            this.isAuth = true;
             this.isSignedUp = true;
             this.currentPage = 'Dashboard'
           },

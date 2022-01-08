@@ -1,24 +1,31 @@
 <template>
     <div>
-        <div class="row row70">
-            <div class="column col70">
-                <video  controlsList="nodownload nofullscreen noremoteplayback" :id="id" :key="videoSrc" class="hidden" ref="video_source">
-                    <source src="@/assets/squatSide.mp4" type="video/mp4"/>
-                </video>
-                <canvas width="1280px" height="720px" ref="output_canvas"></canvas>
+        <div v-if="currentSubID!=''">
+            <p>Sub ID:{{currentSubID}}</p>
+            <div class="row row70">
+                <div class="column col70">
+                    <video controlsList="nodownload nofullscreen noremoteplayback" :id="id" :key="videoSrc" class="hidden" ref="video_source">
+                        <source src="@/assets/squatSide.mp4" type="video/mp4"/>
+                    </video>
+                    <canvas width="1280px" height="720px" ref="output_canvas"></canvas>
+                </div>
+                <div class="column col30">
+                    <scoreList :feedbackList="feedbackList" :averageScore="averageScore"/>
+                </div>
             </div>
-            <div class="column col30">
-                <scoreList :feedbackList="feedbackList" :averageScore="averageScore"/>
+
+            <div class="row row30">
+                <div class="column col70">
+                    <ChartComponent :yvals="frameData" v-bind:key="frameData.length"/>
+                </div>
+                <div class="column col30 controls">
+                    <ControlPanel :excerciseTypes="excerciseTypes" :framerate="framerate" :annotations="annotations" @nextFrame="nextFrame" @prevFrame="prevFrame" @sameFrame="sameFrame" @framerate-update="updateframerate" @exercise-update="updateExcercise"/>
+                </div>
             </div>
         </div>
-
-        <div class="row row30">
-            <div class="column col70">
-                <ChartComponent :yvals="frameData" v-bind:key="frameData.length"/>
-            </div>
-            <div class="column col30 controls">
-                <ControlPanel :excerciseTypes="excerciseTypes" :framerate="framerate" :annotations="annotations" @nextFrame="nextFrame" @prevFrame="prevFrame" @sameFrame="sameFrame" @framerate-update="updateframerate" @exercise-update="updateExcercise"/>
-            </div>
+        <div v-else style="text-align:center">
+            <md-icon class="md-size-5x">search</md-icon>
+            <span class="md-display-3">No exericse selected!</span>
         </div>
     </div>
 </template>
@@ -32,7 +39,7 @@ import ControlPanel from "./ControlPanel.vue";
 import engine from "../assets/engine.js";
 import lungeAnalyse from "../assets/lungesAnalysis.js";
 import squatAnalyse from "../assets/squatAnalysis.js";
-
+import { mapState } from 'vuex'
     export default {
         components: {
             ChartComponent,
@@ -58,6 +65,11 @@ import squatAnalyse from "../assets/squatAnalysis.js";
                 frameData: [],
                 currFrame: -1,
             }
+        },
+        computed:{
+            ...mapState('submissions', {
+                currentSubID: state => state.currentSubID,
+            }),
         },
         created: function() {
             //this.video.sourceLink = "@/assets/squatSide.mp4";
@@ -189,7 +201,7 @@ import squatAnalyse from "../assets/squatAnalysis.js";
             updateExcercise: function (new_ex){
                 this.excerciseType = new_ex
                 console.log("exercise ", new_ex)
-            }
+            },
         },//#003F91, #1B9AAA, (#0B63C1)
     }
 </script>

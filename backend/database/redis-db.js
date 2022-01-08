@@ -325,11 +325,19 @@ async function createOneTimeToken(userId){
 }
 
 async function usernameExists(username){
+  //console.log(await client.hexists("user_ids", username))
   return await client.hexists("user_ids", username)
+  
+}
+
+async function emailExists(email){
+  //console.log(await client.hexists("user_ids_email", email))
+  return await client.hexists("user_ids_email", email)
 }
 
 
 module.exports = {
+  emailExists,
   usernameExists,
   getSubTimestamp,
   createOneTimeToken,

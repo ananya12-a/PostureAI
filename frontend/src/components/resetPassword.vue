@@ -25,6 +25,7 @@
 
 <script>
 import axios from "axios";
+import {mapGetters} from 'vuex'
 export default {
     props:{
         username: String,
@@ -40,14 +41,15 @@ export default {
             return {
                 'md-invalid': this.error
             }
-        }
+        },
+        ...mapGetters({baseURL: 'urls/getURL'})
     },
     methods :{
         reset_password(){
             const username = this.username
             if (this.repassword===this.password){
                 console.log("reset", this.reset_token)
-                axios.post(`http://localhost:3000/account/reset-password/${this.reset_token}`, {
+                axios.post(`${this.baseURL}/account/reset-password/${this.reset_token}`, {
                     new_password: this.password
                 })
                 .then((res) => {

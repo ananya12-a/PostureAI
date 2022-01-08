@@ -1,5 +1,5 @@
 const app = require('express').Router();
-const { get_submissionTable_entry, usernameExists, verifyLogin, getUserId, create_userTable_entry, verifyToken, get_userTable_entry, createOneTimeToken, update_userTable_entry, createToken } = require('./database/redis-db.js');
+const { emailExists, usernameExists, verifyLogin, getUserId, create_userTable_entry, verifyToken, get_userTable_entry, createOneTimeToken, update_userTable_entry, createToken } = require('./database/redis-db.js');
 
 app.post("/login", async (req, res) => {
     if (req.body.username && req.body.password) {
@@ -36,6 +36,11 @@ app.post("/signup", async (req, res) => {
 
 app.get("/signup-helper/username/:username", async (req, res) => {
     if (await usernameExists(req.params.username)) return res.json({exists: true});
+    else res.json({exists: false});
+}) 
+
+app.get("/signup-helper/email/:email", async (req, res) => {
+    if (await emailExists(req.params.email)) return res.json({exists: true});
     else res.json({exists: false});
 }) 
 

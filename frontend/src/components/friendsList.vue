@@ -37,14 +37,10 @@
 
 <script>
 import axios from 'axios';
+import {mapGetters, mapState} from 'vuex';
 export default {
-    props:{
-        userID: String,
-        username: String,
-        token: String,
-    },
     data: () =>({
-        friends: [{'username':'test'}],
+        friends: [],
         friendData: [],
         showDialog: false,
         friendDataIcons:[
@@ -54,15 +50,29 @@ export default {
             {icon:'history', name:'timestamp', show:'Joined on'}
         ]
     }),
+    computed:{
+        ...mapState('account', {
+            username: state => state.username,
+            userID: state => state.userID,
+            token: state => state.token,
+        }),
+        ...mapGetters({baseURL: 'urls/getURL'})
+    },
     mounted(){
-        axios.post("http://localhost:3000/social/get-friends-list", {user_id:this.userID, token:this.token})
+        console.log("url", this.baseURL, this.userID)
+        axios.post(this.baseURL+"/social/get-friends-list", {user_id:this.userID, token:this.token})
         .then((res)=>{
             this.friends = res.data.friends
         })
+        .catch((error)=>{
+                if (error.response.status===403 && error.response.data.invalidToken){
+                    this.$store.commit('logout')
+                }
+            })
     },
     methods:{
         getInfo(inputted_username){
-            axios.post("http://localhost:3000/social/get-public-info", {user_id:this.userID, token:this.token, friendusername: inputted_username})
+            axios.post(this.baseURL+"/social/get-public-info", {user_id:this.userID, token:this.token, friendusername: inputted_username})
             .then((res)=>{
                 console.log(res.data)
                 //const keys = Object.keys(res.data)
@@ -73,6 +83,11 @@ export default {
                 }*/
                 this.friendData.timestamp = new Date(this.friendData.timestamp*1000).toLocaleDateString("en-IN")
                 console.log("i", this.friendData)
+            })
+            .catch((error)=>{
+                if (error.response.status===403 && error.response.data.invalidToken){
+                    this.$store.commit('logout')
+                }
             })
         }
     }

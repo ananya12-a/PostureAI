@@ -3,7 +3,7 @@ const { get_submissionTable_entry, getSubTimestamp, verifyLogin, getUserId, crea
 
 app.post('/get-submission-list/number/:start/:end', async (req,res) => {
     console.log(req.body.user_id , req.body.username , req.params.start , req.params.end)
-    if (req.body.user_id && req.body.username && req.params.start && req.params.end && await verifyToken(req.body.user_id, req.body.token)){
+    if (req.body.user_id && req.body.username && req.params.start && req.params.end){
         const subs = (await get_userTable_entry(req.body.user_id, ['submissions'])).submissions
         const timestamps = []
         for (let i=0; i<subs.length; i++){
@@ -12,7 +12,8 @@ app.post('/get-submission-list/number/:start/:end', async (req,res) => {
         }
         res.json({
             submissions: subs.slice(req.params.start, req.params.end),
-            timestamps: timestamps.slice(req.params.start, req.params.end)
+            timestamps: timestamps.slice(req.params.start, req.params.end),
+            invalidToken: await verifyToken(req.body.user_id, req.body.token)
         })
         
     }
@@ -21,7 +22,7 @@ app.post('/get-submission-list/number/:start/:end', async (req,res) => {
 
 app.post('/get-submission-list/date/:start/:end', async (req,res) => {
     
-    if (req.body.user_id && req.body.username && req.params.start && req.params.end && await verifyToken(req.body.user_id, req.body.token)){
+    if (req.body.user_id && req.body.username && req.params.start && req.params.end){
         const subs = (await get_userTable_entry(req.body.user_id, ['submissions'])).submissions
         const timestamps = []
         const start_date = new Date(parseInt(req.params.start))
@@ -39,7 +40,8 @@ app.post('/get-submission-list/date/:start/:end', async (req,res) => {
         //put into redis /1000 and to take it out *1000
         res.json({
             submissions: subs.slice(start, end),
-            timestamps: timestamps.slice(start, end)
+            timestamps: timestamps.slice(start, end),
+            invalidToken: await verifyToken(req.body.user_id, req.body.token)
         })
         
     }
@@ -47,14 +49,17 @@ app.post('/get-submission-list/date/:start/:end', async (req,res) => {
 })
 
 app.post('/get-submission-data', async (req,res) => {
-    if (req.body.submissionID && await verifyToken(req.body.user_id, req.body.token)){
+    if (req.body.submissionID){
         const data = await get_submissionTable_entry(req.body.submissionID, req.body.user_id, ['exercise_id', 'orientation', 'keypoints', 'seconds_analysed','overall_score', 'difficulty', 'timestamp'])
         data['exercise'] = (await get_exerciseTable_entry(data['exercise_id'], ['name'])).name
         delete data['exercise_id']
+        data['invalidToken'] = await verifyToken(req.body.user_id, req.body.token)
         
-        res.json(data)
+        res.json(
+            data,
+        )
     }
-    else res.send(404)
+    else res.status(403).send()
 })
 
 module.exports = app;

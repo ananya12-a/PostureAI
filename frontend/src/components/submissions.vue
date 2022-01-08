@@ -44,6 +44,7 @@
                     </md-tabs>
 
                     <md-dialog-actions>
+                        <md-button class="md-primary" @click="updateCurrentSub(item)">Open in Dashboard</md-button>
                         <md-button class="md-primary" @click="showDialog = false">Close</md-button>
                     </md-dialog-actions>
                 </md-dialog>
@@ -54,7 +55,7 @@
 
 <script>
 import axios from 'axios';
-import {mapState} from 'vuex'
+import {mapState, mapGetters, mapMutations} from 'vuex'
 export default {
     data: () => ({
         startDate: null,
@@ -83,14 +84,16 @@ export default {
           username: state => state.username,
           userID: state => state.userID,
           token: state => state.token,
-      })
+      }),
+      
+      ...mapGetters({baseURL: 'urls/getURL'})
     },
     watch:{
         startNumber: function (){
             
             if (this.startNumber != null && this.endNumber != null && this.startNumber != undefined && this.endNumber != undefined){
-                console.log(this.userID)
-                axios.post(`http://localhost:3000/submission/get-submission-list/number/${this.startNumber}/${this.endNumber}`, {user_id:this.userID, token:this.token, username: this.username})
+                console.log(this.baseURL)
+                axios.post(`${this.baseURL}/submission/get-submission-list/number/${this.startNumber}/${this.endNumber}`, {user_id:this.userID, token:this.token, username: this.username})
                 .then((res)=>{
 
                     this.submissions = res.data.submissions
@@ -98,18 +101,30 @@ export default {
                         this.timestamps[i] =  new Date(res.data.timestamps[i]).toLocaleString()
                     }
                 })
+                .catch((error)=>{
+                    console.log("err", error)
+                    if (error.response.status===403 && error.response.data.invalidToken){
+                        this.$store.commit('logout')
+                    }
+                })
             }
         },
         endNumber: function(){
             if (this.startNumber != null && this.endNumber != null && this.startNumber != undefined && this.endNumber != undefined){
-                console.log(this.userID)
-                axios.post(`http://localhost:3000/submission/get-submission-list/number/${this.startNumber}/${this.endNumber}`, {user_id:this.userID, token:this.token, username: this.username})
+                console.log(this.baseURL)
+                axios.post(`${this.baseURL}/submission/get-submission-list/number/${this.startNumber}/${this.endNumber}`, {user_id:this.userID, token:this.token, username: this.username})
                 .then((res)=>{
                     this.submissions = res.data.submissions
                     for (let i=0; i<res.data.timestamps.length;i++){
                         this.timestamps[i] =  new Date(res.data.timestamps[i]).toLocaleString()
                     }
                     
+                })
+                .catch((error)=>{
+                    console.log("err", error)
+                    if (error.response.status===403 && error.response.data.invalidToken){
+                        this.$store.commit('logout')
+                    }
                 })
             }
         },
@@ -117,7 +132,7 @@ export default {
             console.log(this.username)
             if (this.startDate != null && this.endDate != null && this.startDate != undefined && this.endDate != undefined){
                 console.log(this.startDate)
-                axios.post(`http://localhost:3000/submission/get-submission-list/date/${this.startDate.getTime()}/${this.endDate.getTime()}`, {user_id:this.userID, token:this.token, username: this.username})
+                axios.post(`${this.baseURL}/submission/get-submission-list/date/${this.startDate.getTime()}/${this.endDate.getTime()}`, {user_id:this.userID, token:this.token, username: this.username})
                 .then((res)=>{
                     this.submissions = res.data.submissions
                     console.log(this.submissions)
@@ -125,11 +140,17 @@ export default {
                         this.timestamps[i] =  new Date(res.data.timestamps[i]).toLocaleString()
                     }
                 })
+                .catch((error)=>{
+                    console.log("err", error)
+                    if (error.response.status===403 && error.response.data.invalidToken){
+                        this.$store.commit('logout')
+                    }
+                })
             }
         },
         endDate: function(){
             if (this.startDate != null && this.endDate != null && this.startDate != undefined && this.endDate != undefined){
-                axios.post(`http://localhost:3000/submission/get-submission-list/date/${this.startDate.getTime()}/${this.endDate.getTime()}`, {user_id:this.userID, token:this.token, username: this.username})
+                axios.post(`${this.baseURL}/submission/get-submission-list/date/${this.startDate.getTime()}/${this.endDate.getTime()}`, {user_id:this.userID, token:this.token, username: this.username})
                 .then((res)=>{
                     this.submissions = res.data.submissions
                     console.log(this.submissions)
@@ -138,12 +159,18 @@ export default {
                     }
                     
                 })
+                .catch((error)=>{
+                    console.log("err", error)
+                    if (error.response.status===403 && error.response.data.invalidToken){
+                        this.$store.commit('logout')
+                    }
+                })
             }
         }
     },
     methods:{
         getInfo(subID){
-            axios.post("http://localhost:3000/submission/get-submission-data", {user_id:this.userID, token:this.token, submissionID: subID})
+            axios.post(`${this.baseURL}/submission/get-submission-data`, {user_id:this.userID, token:this.token, submissionID: subID})
             .then((res)=>{
                 console.log(res.data)
                 //const keys = Object.keys(res.data)
@@ -155,11 +182,21 @@ export default {
                 this.subData.timestamp = new Date(this.subData.timestamp*1000).toLocaleString()
                 console.log("i", this.subData)
             })
+            .catch((error)=>{
+                if (error.response.status===403 && error.response.data.invalidToken){
+                    this.$store.commit('logout')
+                }
+            })
         },
         disabledDates(date){
             //console.log(this.startDate, date, date>=new Date(this.startDate))
             return date<new Date(this.startDate)
         },
+        updateCurrentSub(subID){
+            this.updateSubID(subID)
+            this.$emit('newSubID', true)
+        },
+        ...mapMutations({updateSubID:'submissions/updateSubID'})
     }
 }
 </script>

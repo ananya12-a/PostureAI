@@ -27,6 +27,7 @@ app.use('/config', require('./config.js'))
 app.use('/account', require('./account.js'))
 app.use('/social', require('./social.js'))
 app.use('/submission', require('./submission.js'))
+app.use('/upload', require('./upload.js'))
 //app.use('/mff', )
 //app.use('/fetch', )
 

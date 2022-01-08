@@ -20,6 +20,7 @@
 
 <script>
 import axios from "axios";
+import {mapGetters} from 'vuex'
 export default {
     data: ()=>({
         error:false,
@@ -31,14 +32,15 @@ export default {
             return {
                 'md-invalid': this.error
             }
-        }
+        },
+        ...mapGetters({baseURL: 'urls/getURL'})
     },
     methods:{
         forgot_password () {
             const username = this.username
             const email = this.email
 
-            axios.get(`http://localhost:3000/account/forgot-password/${username}/${email}`, {})
+            axios.get(`${this.baseURL}/account/forgot-password/${username}/${email}`, {})
             .then((res) => {
                 if (res.data.status){
                     this.error=false;

@@ -3,7 +3,7 @@ const { get_submissionTable_entry, verifyLogin, getUserId, create_userTable_entr
 
 app.post('/get-friends-list', async (req,res) => {
     console.log(req.body.user_id, req.body.token)
-    if (req.body.user_id && await verifyToken(req.body.user_id, req.body.token)){
+    if (req.body.user_id){
         const userID = req.body.user_id
         const friends = (await get_userTable_entry(userID, ['friends'])).friends
         for (let i=0; i<friends.length; i++){
@@ -11,14 +11,15 @@ app.post('/get-friends-list', async (req,res) => {
         }
         res.json({
             friends: friends,
+            invalidToken: await verifyToken(req.body.user_id, req.body.token)
         });
     }
-    else res.send(403)
+    else res.status(403).send()
 })
 
 app.post('/get-public-info', async (req, res) => {
     
-    if (req.body.user_id && await verifyToken(req.body.user_id, req.body.token)){
+    if (req.body.user_id){
         if (req.body.friendusername || req.body.friendID){
             if (!req.body.friendID) friendID = await getUserId(req.body.friendusername)
             else friendID = req.body.friendID
@@ -26,11 +27,12 @@ app.post('/get-public-info', async (req, res) => {
             if (req.body.filter) filteredArray = public_data.filter(value => req.body.filter.includes(value));
             else filteredArray = public_data
             const data = await get_userTable_entry(friendID, filteredArray)
-            
+            data ['invalidToken']= await verifyToken(req.body.user_id, req.body.token)
             res.json(data)
         }
         else res.send(401)
     }
+    else res.status(403).send()
 })
 
 module.exports = app;

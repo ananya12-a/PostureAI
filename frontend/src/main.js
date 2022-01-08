@@ -13,6 +13,41 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex);
 
+const urls = {
+  namespaced:true,
+  state: () => ({
+    baseURL:"localhost:3000",
+    isSecure:false,
+  }),
+  getters:{
+    getURL: state => {
+      if (state.isSecure){
+        return "https://" + state.baseURL
+      }
+      else{
+        return "http://" + state.baseURL
+      }
+    }
+  }
+}
+
+const submissions = {
+  namespaced:true,
+  state: () => ({
+    currentSubID:""
+  }),
+  getters:{
+    currentSubID(state){
+      return state.currentSubID
+    }
+  },
+  mutations:{
+    updateSubID(state, ID){
+      state.currentSubID = ID
+    }
+  }
+}
+
 const account = {
   namespaced: true,
   state: () => ({
@@ -66,6 +101,8 @@ const account = {
 const store = new Vuex.Store({
   modules: {
     account,
+    urls,
+    submissions
   }
 })
 
