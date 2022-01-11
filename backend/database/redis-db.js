@@ -240,6 +240,7 @@ async function create_submissionTable_entry (exercise_name, username, id="", tim
       await client.hset(`user_table:${u_id}:submission:${id}`, "difficulty", difficulty)
   }
   else console.log("Error, either username or exercise doesn't exist.")
+  return id
 }
 
 async function getSubmissionsId(u_id, timestamp){

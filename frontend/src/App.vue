@@ -8,6 +8,22 @@
           </md-button>
 
           <span class="md-title">{{currentPage}}</span>
+          <div class="" style="margin-left:auto">
+              <md-menu md-size="medium" md-direction="bottom-start" md-align-trigger  v-if="isAuth">
+                <md-button class="md-icon-button" md-menu-trigger>
+                  <md-icon class="md-size-2x">account_circle</md-icon>
+                </md-button>
+
+                <md-menu-content>
+                  <md-icon class="md-size-3x">person</md-icon>
+                  <span class="md-headline" style="text-align:center">{{this.username}}</span>
+                  <md-menu-item @click="logout">
+                    <md-icon>logout</md-icon>
+                    <span>Log Out</span>
+                  </md-menu-item>
+                </md-menu-content>
+              </md-menu>
+          </div>
         </div>
       </md-app-toolbar>
 
@@ -40,6 +56,9 @@
           </div>
           <div v-if="currentPage === 'Dashboard'">
           <VideoElementViewer/>
+          </div>
+          <div v-if="currentPage === 'Leaderboard'">
+          <p> Leaderboards </p>
           </div>
         </div>
         <div v-else>
@@ -91,13 +110,13 @@ import "./theme.scss"
         created: function() {
           const timer = setInterval(async () => {
             if (this.isAuth) {
-              console.log(this.username, this.token)
+              //console.log(this.username, this.token)
               await axios.post(this.baseURL + '/account/tokenVerify', {
                 username: this.username,
                 token: this.token
               })
                 .then((res) => {
-                  console.log('returned response', res.data)
+                  //console.log('returned response', res.data)
                   if (res.data && res.data.tokenValid === false) {
                     this.$store.commit('account/logout')
                   }
@@ -153,7 +172,9 @@ import "./theme.scss"
           },
           updateUserData(data){
             this.userData.userID = data.user_id
+            console.log(this.userData.password)
             this.userData.password = data.password
+            console.log(this.userData.password)
             this.userData.username = data.username
             this.userData.token = data.token
             this.isAuth = true;
@@ -171,6 +192,9 @@ import "./theme.scss"
             this.userData.username = data.username
             this.userData.password = data.password
             this.isEmailSent = true
+          },
+          logout(){
+            this.$store.commit('account/logout')
           }
         }
     }
