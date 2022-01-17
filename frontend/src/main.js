@@ -15,6 +15,23 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex);
 
+const pages = {
+  namespaced: true,
+  state: ()=>({
+    currentPage:"Dashboard"
+  }),
+  getters:{
+    getCurrentPage: state =>{
+      return state.currentPage
+    }
+  },
+  mutations:{
+    updateCurrentPage(state, currentPage){
+      state.currentPage = currentPage
+    }
+  }
+}
+
 const urls = {
   namespaced:true,
   state: () => ({
@@ -30,7 +47,8 @@ const urls = {
         return "http://" + state.baseURL
       }
     }
-  }
+  },
+  
 }
 
 const submissions = {
@@ -69,6 +87,9 @@ const account = {
       state.isLoggedIn = false;
       state.username = "";
       state.token = "";
+    },
+    forgotpassword(state, username){
+      state.username = username
     }
   },
 
@@ -104,7 +125,8 @@ const store = new Vuex.Store({
   modules: {
     account,
     urls,
-    submissions
+    submissions,
+    pages
   },
   plugins: [createPersistedState({
     storage: localStorage

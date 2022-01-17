@@ -313,16 +313,36 @@ async function createToken(userId){
   return token;
 }
 
+async function create5minToken(userId){
+  const token = uuid();
+  //console.log(token);
+  await client.set(`tokens:${userId}`, token);
+  await client.expire(`tokens:${userId}`, 5*60);
+  return token;
+}
+
 async function verifyToken(userId, token){
   return (client.exists(`tokens:${userId}`, token))
 }
 
-async function createOneTimeToken(userId){
-  const token = uuid();
+async function expireOTP(userId){
+  await client.expire(`forgot_password:${userId}`, 0);
+}
+
+async function createOTP(userId){
+  const token = Math.floor(1000 + Math.random() * 9000);//uuid();
   //console.log(token);
-  await client.set(`tokens:${userId}`, token);
-  await client.expire(`tokens:${userId}`, 24 * 60 * 60);
+  await client.set(`forgot_password:${userId}`, token);
+  await client.expire(`forgot_password:${userId}`, 5 * 60);
   return token;
+}
+
+async function OTPExists(userID){
+  return await client.exists(`forgot_password:${userID}`)
+}
+
+async function OTPget(userID){
+  return await client.get(`forgot_password:${userID}`)
 }
 
 async function usernameExists(username){
@@ -331,17 +351,32 @@ async function usernameExists(username){
   
 }
 
+async function storeFailedOTP(userID, otp){
+  await client.set(`forgot-password:${userID}:fail:${parseInt(Date.now()/1000)}`, otp)
+}
+
 async function emailExists(email){
   //console.log(await client.hexists("user_ids_email", email))
   return await client.hexists("user_ids_email", email)
 }
 
+async function verifyEmail(email, userID){
+  email = await client.hget("user_ids_email", email)
+  console.log(email ===userID)
+  return (email ===userID)
+}
 
 module.exports = {
+  verifyEmail,
+  expireOTP,
+  create5minToken,
+  storeFailedOTP,
   emailExists,
   usernameExists,
   getSubTimestamp,
-  createOneTimeToken,
+  createOTP,
+  OTPget,
+  OTPExists,
   createToken,
   verifyToken,
   verifyLogin,

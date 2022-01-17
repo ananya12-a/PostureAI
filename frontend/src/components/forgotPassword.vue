@@ -20,7 +20,7 @@
 
 <script>
 import axios from "axios";
-import {mapGetters} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 export default {
     data: ()=>({
         error:false,
@@ -36,15 +36,17 @@ export default {
         ...mapGetters({baseURL: 'urls/getURL'})
     },
     methods:{
+        ...mapMutations({updateUsername:'account/forgotpassword'}),
         forgot_password () {
             const username = this.username
             const email = this.email
-
+            this.updateUsername(this.username)
+            //console.log(`${this.baseURL}/account/forgot-password/${username}/${email}`)
             axios.get(`${this.baseURL}/account/forgot-password/${username}/${email}`, {})
             .then((res) => {
-                if (res.data.status){
+                if (res.status===200){
                     this.error=false;
-                    this.$emit('email-sent', {username, reset_token: res.data.reset_token})
+                    this.$emit('email-sent')
                 }
                 else{
                     console.log("unsuccessful")

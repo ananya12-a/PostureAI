@@ -4,7 +4,7 @@
             <p>Sub ID:{{currentSubID}}</p>
             <div class="row row70">
                 <div class="column col70">
-                    <video controlsList="nodownload nofullscreen noremoteplayback" :id="id" :key="videoSrc" class="hidden" ref="video_source">
+                    <video controlsList="nodownload nofullscreen noremoteplayback" :id="id" v-bind:key="videoSrc" class="hidden" ref="video_source">
                         <source src="@/assets/squatSide.mp4" type="video/mp4"/>
                     </video>
                     <canvas width="1280px" height="720px" ref="output_canvas"></canvas>
@@ -47,7 +47,7 @@ import { mapState } from 'vuex'
             ControlPanel,
         },
         props: {
-            videoSrc : String,
+            //videoSrc : String,
         },
         data: function() {
             return {
@@ -64,11 +64,15 @@ import { mapState } from 'vuex'
                 framerate: 8,
                 frameData: [],
                 currFrame: -1,
+                videoSrc: `../backend/submissions/${this.userID}/${this.currentSubID}`,
             }
         },
         computed:{
             ...mapState('submissions', {
                 currentSubID: state => state.currentSubID,
+            }),
+            ...mapState('account', {
+                userID: state => state.userID,
             }),
         },
         created: function() {

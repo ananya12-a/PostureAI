@@ -9,15 +9,17 @@
                 <md-button type="submit" class="md-primary" @click="upload">Upload</md-button>
                 <div class="message">{{message}}</div>
             </div>
-            <div class="md-layout-item">
-                <md-select v-model="excerciseType" placeholder="Exercise Name"> <!--@change change exercise analysis-->
-                    <md-optgroup label="Side View">
-                        <md-option v-for="excerciseType in excerciseTypes.side" v-bind:key="excerciseType" :value="excerciseType">{{excerciseType}}</md-option>
-                    </md-optgroup>
-                    <md-optgroup label="Front View">
-                        <md-option v-for="excerciseType in excerciseTypes.front" v-bind:key="excerciseType" :value="excerciseType">{{excerciseType}}</md-option>
-                    </md-optgroup>
-                </md-select>
+            <div class="md-layout-item" style="padding-left:5%">
+                <md-field>
+                    <md-select v-model="excerciseTypeName" placeholder="Exercise Name"> 
+                        <md-optgroup label="Side View">
+                            <md-option v-for="excerciseType in excerciseTypes.side" v-bind:key="excerciseType" :value="excerciseType">{{excerciseType}}</md-option>
+                        </md-optgroup>
+                        <md-optgroup label="Front View">
+                            <md-option v-for="excerciseType in excerciseTypes.front" v-bind:key="excerciseType" :value="excerciseType">{{excerciseType}}</md-option>
+                        </md-optgroup>
+                    </md-select>
+                </md-field>
             </div>
         </div>
     </div>
@@ -31,35 +33,37 @@ export default {
         video:null,
         message:"",
         excerciseTypes: {side: ["Lunge (Side)", "Squat (Side)"], front: ["Side Lunge (Front)"]},
-        excerciseType:"Lunge (Side)",
+        excerciseTypeName:"Lunge (Side)",
     }),
     methods:{
         handle(event) {
             this.video = event.target.files.length > 0 ? event.target.files[0] : null;
-            console.log("handle", this.video)
+            //console.log("handle", this.video)
+        },
+        ...mapMutations({updateSubID:'submissions/updateSubID', updateCurrentPage:'pages/updateCurrentPage'}),
+        updateCurrentSub(subID){
+            this.updateSubID(subID)
+            this.updateCurrentPage('Dashboard')
         },
         upload(){
             if (!this.video) return; 
             const formDataObj = new FormData();
             formDataObj.append("video", this.video)
-            console.log("upload", formDataObj.getAll('video'), this.userID, this.excerciseType)
-            axios.post(`${this.baseURL}/upload/uploadfile/${this.userID}/${this.excerciseType}`, 
+            //console.log("upload", formDataObj.getAll('video'), this.userID, this.excerciseTypeName)
+            axios.post(`${this.baseURL}/upload/uploadfile/${this.userID}/${this.excerciseTypeName}`, 
                 formDataObj,
                 {
                     'Content-Type': 'multipart/form-data'
                 })
-                .then(res => {
+                .then((res) => {
                     if (res.status === 200 && res.data && res.data.subID) {
-                        //commit state change
-                        // change sub id
+                        console.log(res.data)
+                        this.updateCurrentSub(res.data.subID)
                     }
                 })
         },
-        updateCurrentSub(subID){
-            this.updateSubID(subID)
-            this.$emit('newSubID', true)
-        },
-        ...mapMutations({updateSubID:'submissions/updateSubID'})
+        
+        
     },
     computed:{
         ...mapGetters({baseURL: 'urls/getURL'}),

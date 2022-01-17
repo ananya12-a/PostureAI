@@ -33,19 +33,10 @@ app.post('/uploadfile/:userID/:exName', (req, res, next) => {
     console.log("ex", ex_name, ori)
     const username = (await get_userTable_entry(req.params.userID,['username'])).username
     const subID = await create_submissionTable_entry(ex_name, username, req.params.subID, undefined, ori)
-    
-    //console.log("ID", req.body.userID)
-    //console.log("username", username)
-    //console.log(req.file)//.formDataObj.file)
-    //const sub = await create_submissionTable_entry(ex_name, username, undefined, undefined, ori)
-    //console.log("sub", sub)
-    //req.file['subID'] = sub
-    //console.log(req.formDataObj)
-    res.sendStatus(200)
-    //console.log(req.formDataObj.getAll('video'))
-    /*for (var key of req.formDataObj.entries()) {
-        console.log(key[0] + ', ' + key[1]);
-    }  */
+    //res.sendStatus(200)
+    res.json({
+      subID: req.params.subID,
+    })
 });  
 
 module.exports = app;

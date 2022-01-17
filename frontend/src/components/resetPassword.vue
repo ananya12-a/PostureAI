@@ -1,9 +1,5 @@
 <template>
     <div>
-        <md-field md-has-password :class="messageClass">
-            <label>Temporary Password</label>
-            <md-input v-model="temp_password" type="password"></md-input>
-        </md-field>
 
         <md-field md-has-password :class="messageClass">
             <label>New Password</label>
@@ -29,7 +25,7 @@ import {mapGetters} from 'vuex'
 export default {
     props:{
         username: String,
-        reset_token :String,
+        token :String,
     },
     data: ()=>({
         error:false,
@@ -46,16 +42,16 @@ export default {
     },
     methods :{
         reset_password(){
-            const username = this.username
             if (this.repassword===this.password){
-                console.log("reset", this.reset_token)
-                axios.post(`${this.baseURL}/account/reset-password/${this.reset_token}`, {
-                    new_password: this.password
+                console.log("reset", this.token, `${this.baseURL}/account/reset-password/${this.token}`)
+                axios.post(`${this.baseURL}/account/reset-password/${this.token}`, {
+                    new_password: this.password,
+                    username: this.username,
                 })
                 .then((res) => {
-                    if (res.data.status){
+                    if (res.status===200){
                         this.error=false;
-                        this.$emit('passwordreset', {username, password: this.password})
+                        this.$emit('passwordreset', {username: this.username, password: this.password})
                     }
                     else{
                         console.log("unsuccessful")
@@ -64,8 +60,8 @@ export default {
                     console.log(res.status)
                     console.log(res.data)
                 })
-                .catch(() => {
-                    console.log("unsuccessful")
+                .catch((err) => {
+                    console.log("unsuccessful", err)
                     this.error = true
                 })
             }

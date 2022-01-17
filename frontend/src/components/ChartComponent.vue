@@ -35,7 +35,7 @@ export default {
             for(let i = 0; i < this.yvals.length; i++) {
                 xvals[i] = i;
             }
-            console.log("Chart");
+            //console.log("Chart");
             // eslint-disable-next-line no-unused-vars
             var chart = new Chartist.Line('.main_canvas', {
                 labels: xvals,

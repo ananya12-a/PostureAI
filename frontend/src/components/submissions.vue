@@ -163,11 +163,12 @@ export default {
             //console.log(this.startDate, date, date>=new Date(this.startDate))
             return date<new Date(this.startDate)
         },
+        ...mapMutations({updateSubID:'submissions/updateSubID', updateCurrentPage:'pages/updateCurrentPage'}),
         updateCurrentSub(subID){
             this.updateSubID(subID)
-            this.$emit('newSubID', true)
+            this.updateCurrentPage('Dashboard')
         },
-        ...mapMutations({updateSubID:'submissions/updateSubID'})
+        
     }
 }
 </script>

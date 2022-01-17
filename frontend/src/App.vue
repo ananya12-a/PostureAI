@@ -39,7 +39,7 @@
         </md-toolbar>
 
         <md-list>
-          <md-list-item v-for="item in menuItems" v-bind:key="item.pageName" @click="() => updatePage(item.pageName)">
+          <md-list-item v-for="item in menuItems" v-bind:key="item.pageName" @click="() => updateCurrentPage(item.pageName)">
                 <md-icon>{{item.pageIcon}}</md-icon>
                 <span class="md-list-item-text">{{item.pageName}}</span>
           </md-list-item>
@@ -52,7 +52,7 @@
           <upload/>
           </div>
           <div v-if="currentPage==='Profile'">
-            <profile :userID="userData.userID" :username="userData.username" :token="userData.token" @subUpdated="currentPage='Dashboard'"/>
+            <profile :userID="userData.userID" :username="userData.username" :token="userData.token"/>
           </div>
           <div v-if="currentPage === 'Dashboard'">
           <VideoElementViewer/>
@@ -70,11 +70,14 @@
           <div v-if="!isSignedUp && !isForgetPassword">
             <signup @signedup="updateUserData"/>
           </div>
-          <div v-if="isForgetPassword">
-            <forgotPassword @email-sent="triggerReset"/>
+          <div v-if="isForgetPassword && !isEmailSent">
+            <forgotPassword @email-sent="isEmailSent = true"/>
+          </div>
+          <div v-if="isEmailSent && isForgetPassword">
+            <otpForm @otp-verified="triggerReset"/>
           </div>
           <div v-if="!isForgetPassword && isEmailSent">
-            <resetPassword :username="userData.username" :reset_token="userData.reset_token" @passwordreset="passwordreseted"/>
+            <resetPassword :username="userData.username" :token="userData.reset_token" @passwordreset="passwordreseted"/>
           </div>
         </div>
       </md-app-content>
@@ -91,7 +94,8 @@ import forgotPassword from "./components/forgotPassword.vue"
 import resetPassword from "./components/resetPassword.vue"
 import profile from "./components/profile.vue"
 import upload from "./components/upload.vue"
-import { mapGetters, mapState } from 'vuex'
+import otpForm from "./components/otpForm.vue"
+import { mapGetters, mapState, mapMutations } from 'vuex'
 import "./theme.scss"
     export default {
         name: 'App',
@@ -103,6 +107,7 @@ import "./theme.scss"
           resetPassword,
           profile,
           upload,
+          otpForm,
         },
         props: {
             PageTitle: String,
@@ -129,28 +134,23 @@ import "./theme.scss"
           });
         },
         computed: {
-          ...mapGetters({isAuth: 'account/isLoggedIn', baseURL: 'urls/getURL'}),
+          ...mapGetters({isAuth: 'account/isLoggedIn', baseURL: 'urls/getURL', currentPage:'pages/getCurrentPage'}),
           ...mapState('submissions', {
-              currentSubState: state => state.currentSubID,
+              currentSub: state => state.currentSubID,
           }),
           ...mapState('account', {
               username: state => state.username,
               token: state => state.token,
           }),
-        },
-        mounted:{
-          useCurrentSub(){
-            this.currentSub = this.currentSubState
-          }
+          
         },
         data: () => ({
             menuVisible: false,
-            currentPage: "Dashboard",
+            //currentPage: "Dashboard",
             isLoggedIn: false,
             isSignedUp:true,
             isForgetPassword:false,
             isEmailSent:false,
-            currentSub:"",
             userData: {
               userID: "",
               username: "",
@@ -167,9 +167,7 @@ import "./theme.scss"
             ],
         }),
         methods: {
-          updatePage(page) {
-            this.currentPage = page;
-          },
+          ...mapMutations({updateCurrentPage:'pages/updateCurrentPage'}),
           updateUserData(data){
             this.userData.userID = data.user_id
             console.log(this.userData.password)
@@ -179,7 +177,8 @@ import "./theme.scss"
             this.userData.token = data.token
             this.isAuth = true;
             this.isSignedUp = true;
-            this.currentPage = 'Dashboard'
+            //this.currentPage = 'Dashboard'
+            this.updateCurrentPage('Dashboard')
           },
           triggerReset(data){
             this.userData.username = data.username
@@ -189,13 +188,15 @@ import "./theme.scss"
             this.isForgetPassword = false
           },
           passwordreseted(data){
+            console.log("called")
             this.userData.username = data.username
             this.userData.password = data.password
-            this.isEmailSent = true
+            this.isEmailSent = false
+            console.log(this.isSignedUp, !this.isForgetPassword, !this.isEmailSent)
           },
           logout(){
             this.$store.commit('account/logout')
-          }
+          },
         }
     }
     /*
